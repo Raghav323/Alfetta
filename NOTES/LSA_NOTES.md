@@ -2,12 +2,15 @@
 
 1. Macro :  Piece of code which is given some name and replaced in code during preprocessing (before compilation)
 2. #define : Used to define a macro in c . A directive statement .
-3. app_main() : Just like int main()
-4. BLACK_MARGIN AND WHITE_MARGIN : macros defining upper and lower bounds for the readings from line sensors
-5. CONSTRAINT_LSA_LOW AND CONSTRAINT LSA HIGH : values to which lsa readings are mapped to for convenience 
-6. ADC : Analog to digital convertor . Converts analog values from photodiode to digital signals .Self explanatory .
-7. Bound(val,min,max) : - Bounds the value to be in between min and max using simple if-else statements . Written inside utils.c in sra_board.h library 
-8. Map(val,oldmin,oldmax,newmin,newmax) :- maps value which is bounded by oldmin , oldmax to new value bounded by newmin , newmax 
+3. #if : directive conditional compilation statement. Just like if statement , it decides if the code below it should be compiled.
+4. #endif : marks the end of block for the directive if statement . Code below this will be compiled without any conditions . 
+5. #ifdef macro : equivalent to #if 1 if macro is defined , #if 0 if macro is not defined .
+6. app_main() : Just like int main()
+7. BLACK_MARGIN AND WHITE_MARGIN : macros defining upper and lower bounds for the readings from line sensors
+8. CONSTRAINT_LSA_LOW AND CONSTRAINT LSA HIGH : values to which lsa readings are mapped to for convenience 
+9. ADC : Analog to digital convertor . Converts analog values from photodiode to digital signals .Self explanatory .
+10. Bound(val,min,max) : - Bounds the value to be in between min and max using simple if-else statements . Written inside utils.c in sra_board.h library 
+11. Map(val,oldmin,oldmax,newmin,newmax) :- maps value which is bounded by oldmin , oldmax to new value bounded by newmin , newmax 
 while maintaining equal spacing /uniformity using simple linear mathematics . Written inside utils.c in sra_board.h library.
 9. enable_line_sensor() : enables line sensor and returns ESP_OK if successfull .Written inside lsa.c in sra_board.h library. Inside its definition , 
 it calls enable_adc1() which uses adc.c library inside sra_board.h library to check if adc is enabled. 
