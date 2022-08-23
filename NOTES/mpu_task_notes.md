@@ -1,4 +1,5 @@
-**CONCEPTS :**
+**CONCEPTS :** 
+
 **MPU**: Motion processing unit contains gyroscope and 
 accelerometer to obtain the changes in roll and pitch used for self balancing task.
 
@@ -8,7 +9,7 @@ final angles .
 
 **Tag**: const character pointer used as tag for esplogi function .
 
-**Functions**:
+**FUNCTIONS**:
 
 **read_mpu()** (Written inside sra header file)
 1. Euler angles are obtained by reading values from the accelerometer and gyroscope
