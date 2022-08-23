@@ -7,6 +7,7 @@ to perceived analog results .
 #define MODE NORMAL MODE 
 The above  defines macro mode for the motor driver as normal mode ie one driver
 controls two motors . 
+
 **pwm_task():**
 if mode is **normal** : 
 1. enable motor driver A in normal mode using enable_motor_driver
