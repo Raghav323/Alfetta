@@ -1,5 +1,5 @@
 **CONCEPTS**:
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 **PID** : To find correction and remove error using proportional , integral and derivative terms. 
 Proportional decreases error but causes oscillations on its own, derivative decreases the slope and makes 
 it follow straight line  , integral reduces the area between line and bot.**
@@ -13,7 +13,7 @@ D=Kd*rate of change of error
 **higher_duty_cycle:** maximum allowable duty cycle 
 
 **FUNCTIONS :**
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 **lsa_to_bar()**{
 Purpose:
 To showcase the lsa readings on the 8 leds 
