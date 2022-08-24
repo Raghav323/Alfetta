@@ -61,6 +61,7 @@ MIN_PWM 60 : Minimum allowable duty cycle for motor drivers .
       **P_term**=kp*pitch error ,**I_term**=pitch_area*ki,**D_term**=kd*pitch_rate
 
      **Explanation:**
+     
       1.We find pitch error difference by subtracting prev pitch error from 
       current pitch error . We keep adding pitch error to pitch area variable
       
