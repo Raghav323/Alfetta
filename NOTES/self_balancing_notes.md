@@ -11,7 +11,7 @@ I=ki*cumulative sum of errors
 
 D=Kd*rate of change of error
 
-2.**PITCH**: Rotation of the bot along with y axis as axis of rotation .
+2.**PITCH**: Rotation of the bot with y axis as axis of rotation .
 Note that the bot moves in the xy plane and its direction of motion 
 is always along x axis . 
 
@@ -21,8 +21,8 @@ for calculations .
 
 4.**Self  balancing concept**: We determine pitch correction for the pitch
 error using PID just like in line-following and then use it as duty cycle
-for motor drivers which move the bot to move forward/backwards and 
-correct the bots angle with ground thanks to inertia . 
+for motor drivers which move the bot forward/backwards and 
+correct the bots angle wrt ground thanks to inertia . 
 
 
 **MACROS:**
