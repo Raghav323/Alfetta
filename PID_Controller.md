@@ -99,7 +99,7 @@ pid->derState = input;
  
  3.Actuator : An actuator is a device that produces a motion by converting energy and signals going into the system.
 
- #### <div align="center">1.Motor and gear </div>
+ ### <div align="center">1.Motor and gear </div>
 The first example plant is a motor driving a gear train, with the output position of the
 gear train being monitored by a potentiometer .
 The potentiometer outputs a voltage proportional to the position of the output shaft .
@@ -141,7 +141,7 @@ The position takes longer to settle out than the system with pure proportional c
 motor with pure integral control it does settle out, and the system will not settle to the
 wrong spot.
 
- ####  <div align="center"> 2. Precision Actuator </div>
+ ###  <div align="center"> 2. Precision Actuator </div>
  
  Used for accurate positional movements .Software commands the current in the coil. This current 
  sets up a magnetic field which exerts a force on the magnet. The magnet is attached to the stage, which moves 
@@ -178,7 +178,7 @@ other systems.
 
 
 
- ####  <div align="center">2. Temperature Controller </div>
+ ###  <div align="center">3. Temperature Controller </div>
  The vessel is heated by an electric heater, and the temperature of its
 contents is sensed by a temperature sensing device. Its DE: 
 
