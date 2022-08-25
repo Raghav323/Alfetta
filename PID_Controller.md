@@ -17,7 +17,7 @@ feedback from the plant and the command to generate the drive . Just like in Wal
 The Controller receives the plant feedback and command . It then finds error as command - plant_feedback . This error is used to find the proportional and
 integral elements while for derivative element we directly use plant feedback .
 
-### Proportional Control
+### <div align="center">PROPORTIONAL CONTROL</div>
 A proportional controller is just
 the error signal multiplied by a constant and fed out to the drive.
 
@@ -34,7 +34,7 @@ pTerm = pid->propGain * error;
 
 return pTerm;
 
-### Integral Control
+### <div align="center">INTEGRAL CONTROL</div>
 Integral control is used to add long-term precision to a control loop. It is almost always
 used in conjunction with proportional control. The integrator state "remembers" all that
 has gone on before, which is what allows the controller to cancel out any long term errors
@@ -73,7 +73,7 @@ pid->integratState = pid->integratMin;
 
 iTerm = pid->integratGain * pid->integratState;
 
-### Derivative Control 
+### <div align="center">DERIVATIVE CONTROL</div>
 
 Derivative Control predicts the plant behavior .
 Given by D= (de/dt )* Kd
@@ -93,10 +93,13 @@ pid->derState = input;
  
  
  #### Basic Terminologies 
- 1. Gear Train : When sometimes two or more gears are made to mess with each other to transmit power from one shaft to another such combination is called gear trains.
- 2. Shaft : A shaft is a rotating machine element, usually circular in cross section, which is used to transmit power from one part to another
- 3. Actuator : An actuator is a device that produces a motion by converting energy and signals going into the system
- #### 1. Motor and gear 
+ 1.Gear Train : When sometimes two or more gears are made to mess with each other to transmit power from one shaft to another such combination is called gear trains.
+ 
+ 2.Shaft : A shaft is a rotating machine element, usually circular in cross section, which is used to transmit power from one part to another
+ 
+ 3.Actuator : An actuator is a device that produces a motion by converting energy and signals going into the system.
+
+ #### <div align="center">1.Motor and gear </div>
 The first example plant is a motor driving a gear train, with the output position of the
 gear train being monitored by a potentiometer .
 The potentiometer outputs a voltage proportional to the position of the output shaft .
@@ -109,7 +112,7 @@ Vm= Input Voltage , K = Motor gain
 
 Note : Vm is the variable we can control so we can replace Vm with some function of time and then solve the differential equation .
 
-##### STEP RESPONSE 
+#### STEP RESPONSE 
 A useful concept when working with control systems is the “step response”. A system’s
 step response is just the behavior of the system output in response to an input that goes
 from zero to some constant value at time t = 0 . Its equivalent to plugging Vm= some constant in above differential equation and solving it .
@@ -126,6 +129,7 @@ The reason the motor and gear start to overshoot with high gains is because of t
 in the motor response. 
 
 **Only Integral Control on Motor and Gear**
+
  This system simply doesn’t settle, no matter how
 low you set the integral gain. Like the precision actuator with proportional control, the
 motor and gear system with integral control  will oscillate with bigger and bigger
@@ -137,7 +141,7 @@ The position takes longer to settle out than the system with pure proportional c
 motor with pure integral control it does settle out, and the system will not settle to the
 wrong spot.
 
- #### 2. Precision Actuator 
+ ####  <div align="center"> 2. Precision Actuator </div>
  
  Used for accurate positional movements .Software commands the current in the coil. This current 
  sets up a magnetic field which exerts a force on the magnet. The magnet is attached to the stage, which moves 
@@ -159,19 +163,22 @@ system will oscillate. As the gain is increased the frequency of the output will
 the system just won’t settle
  
  **Only Integral Control on Precision Actuator**
+ 
  Since the system cannot be stabilised with proportional control , it cannot be with integral control either 
  
 **Proportional and Integral Control on Precision Actuator**
+
 Not enough as it fails using only proportional and only integral . 
 
 
 **Proportional and Derivative Control on Precision Actuator**
+
 This system settles in less than 1/2 or a second, compared to multiple seconds for the
 other systems.
 
 
 
- #### 3. Temperature Control 
+ ####  <div align="center">2. Temperature Controller </div>
  The vessel is heated by an electric heater, and the temperature of its
 contents is sensed by a temperature sensing device. Its DE: 
 
@@ -181,6 +188,7 @@ For step response , lets consider a change in vd and change in ambient temperatu
 
 
 **Only Proportional Control on Temperature Controller**
+
 With or without the disturbance , proportional control doesn’t get the temperature to the desired setting; with the
 disturbance loop is susceptible to external effects. 
 
@@ -189,11 +197,13 @@ But high gain results in strong overshoot at start that continues to travel back
 
 
 **Only Integral Control on Temperature Controller**
+
 This system takes a lot longer to settle out than the same plant with proportional control
  but when it does settle out it settles out to the target value - even the undesired response
  from the disturbance goes to zero eventually.
  
  **Proportional and Integral Control on Temperature Controller**
+ 
  The heater still settles out to the exact target temperature as with pure integral control
  , but with PI control it settles out 2 to 3 times faster.
 
@@ -203,7 +213,7 @@ This system takes a lot longer to settle out than the same plant with proportion
 1.**Sampling rate** : For a PI controller  prefer to have a system where each sample falls within ±1% to ±5 of the correct sample time,
 and a long-term average rate that is right on the button.
 
-2. **Prevent Integrator Windup**: If you use a PI controller, then all the time spent in
+2.**Prevent Integrator Windup**: If you use a PI controller, then all the time spent in
 saturation can cause the integrator state to grow (wind up) to very large values. When the
 plant reaches the target, the integrator value is still very large, so the plant drives beyond
 the target while the integrator unwinds and the process reverses. This situation can get so
@@ -213,6 +223,7 @@ To deal with integrator windup , we can limit the value of integrator state(inte
 of the drive output.
 
 ### Problems with Differential Control 
+
 The three problems with differential control are sampling
 irregularities, noise, and high frequency oscillations.
 
@@ -228,6 +239,7 @@ Either set the hardware up to reinforce sampling  or give priority to sampling i
 
 
 ### Complete Controller 
+
 Code for complete controller : 
 
 typedef struct
@@ -300,16 +312,16 @@ return pTerm + dTerm + iTerm;
 
 #### Adjusting Derivative Gain
 
-1. Check to see how the system works. If it oscillates with proportional gain you should
+1.Check to see how the system works. If it oscillates with proportional gain you should
 be able to cure it with differential gain.
 
- 2. Start with about 100 times more derivative gain than
+ 2.Start with about 100 times more derivative gain than
 proportional gain. Watch your drive signal while you stimulate the system. If the system
 oscillates under derivative control when it did not oscillate under proportional control
 alone, or if the system oscillates much faster when you dial in some derivative gain, back
 the derivative gain off by factors of two until it stops.
 
-3. Push the gain up until the system is on the verge of oscillation,
+3.Push the gain up until the system is on the verge of oscillation,
 then back the gain off by a factor of 2 or 4. Make sure the drive signal still looks good. At
 this point your system will probably be settling out very sluggishly, so its time to tune the
 proportional and integral gains.
@@ -317,9 +329,9 @@ proportional and integral gains.
 
 #### Adjusting Integral Gain
 
-1. Set it after setting proportional gain.
+1.Set it after setting proportional gain.
 
-2. If you are using derivative gain, a good starting value for the integrator gain is to set it
+2.If you are using derivative gain, a good starting value for the integrator gain is to set it
 smaller than the proportional gain by the same ratio as proportional gain to derivative
 gain. 
 
@@ -331,9 +343,9 @@ be around 1/100 of the proportional gain.
 
 4.If you see oscillation, decrease the integrator gain by steps of 8 or 10 until the oscillation goes away. 
 
-5. If you don’t seeoscillation, increase the integrator gain by steps of 8 or ten until you do. 
+5.If you don’t seeoscillation, increase the integrator gain by steps of 8 or ten until you do. 
 
-6. Try to find the gain where the system just breaks into oscillation, and then back the gain
+6.Try to find the gain where the system just breaks into oscillation, and then back the gain
 off by a factor of 2 or 4.
 
 
@@ -341,17 +353,16 @@ off by a factor of 2 or 4.
 
 #### Adjusting Proportional Gain
 
-1. If you have nonzero derivative gain in your system, a good starting value for the proportional gain is 1/100 of the derivative gain value.
-2. 
-3. If you are not using derivative action in the system, find a starting value for the proportional gain. In most control systems, a gain
+1.If you have nonzero derivative gain in your system, a good starting value for the proportional gain is 1/100 of the derivative gain value.
+ 
+2.If you are not using derivative action in the system, find a starting value for the proportional gain. In most control systems, a gain
 of between 1 and 100 is a good point to start.
 
 3.If you see oscillation drop the proportional gain by factors of 8 or 10 until the oscillation
 stops. 
 
-4. If you don’t see oscillation, increase the proportional gain by factors of 8 or 10
+4.If you don’t see oscillation, increase the proportional gain by factors of 8 or 10
 until you start seeing oscillation or excessive overshoot. 
 
-5.Once you are close, fine tune the
-proportional gain by factors of two until you see oscillation, then back the gain off by a
+5.Once you are close, fine tune the proportional gain by factors of two until you see oscillation, then back the gain off by a
 factor of two or four.
