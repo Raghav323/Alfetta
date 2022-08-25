@@ -3,6 +3,9 @@
 
 ### <div align="center">CONTROL LOOPS</div>
 
+![image](https://user-images.githubusercontent.com/111511248/186735348-284b4a9a-12c0-4e59-b4fc-59f40cda06c1.png)
+
+
 **Plant** : The object we want to control . In our case it is the WallE bot.
 
 **Command**:- Task given to controller . In our case it is to align with line/balance itself.
@@ -126,6 +129,8 @@ On solving we get motor_angle=A+ Be^-kx + Cx  which has following graph :
 
 **Only Proportional Control on Motor and Gear** 
 
+![image](https://user-images.githubusercontent.com/111511248/186735462-a16678a7-3618-456a-a2f9-5cafafdaa763.png)
+
 For small gains (propGain or kp = 1) the motor goes to the correct
 target, but it does so quite slowly. Increasing the gain (kp = 2) speeds up the response to
 a point. Beyond that point (kp = 5, kp = 10) the motor starts out faster but overshoots the target.
@@ -134,6 +139,8 @@ in the motor response.
 
 **Only Integral Control on Motor and Gear**
 
+![image](https://user-images.githubusercontent.com/111511248/186735627-498c306f-a03c-4522-850f-4543d3b03a5e.png)
+
  This system simply doesn’t settle, no matter how
 low you set the integral gain. Like the precision actuator with proportional control, the
 motor and gear system with integral control  will oscillate with bigger and bigger
@@ -141,6 +148,7 @@ swings until something hits a limit
 
 **Proportional and Integral Control on Motor and Gear**
 
+ ![image](https://user-images.githubusercontent.com/111511248/186735932-075e9061-43d7-4a72-8701-d90b31ffd50c.png)
 
 
 The position takes longer to settle out than the system with pure proportional control, but unlike the
@@ -168,6 +176,8 @@ wrong spot.
  
  **Only Proportional Control on Precision Actuator**
  
+ ![image](https://user-images.githubusercontent.com/111511248/186735521-e4ace72c-b1df-4f8b-8787-b7f6bebd4601.png)
+
 There is so much delay in the plant that no matter how low the gain is the
 system will oscillate. As the gain is increased the frequency of the output will increase, but
 the system just won’t settle
@@ -182,6 +192,8 @@ Not enough as it fails using only proportional and only integral .
 
 
 **Proportional and Derivative Control on Precision Actuator**
+
+![image](https://user-images.githubusercontent.com/111511248/186736079-faa1a2b0-4e2d-4c56-ba50-ec44cf2ea717.png)
 
 This system settles in less than 1/2 or a second, compared to multiple seconds for the
 other systems.
@@ -203,6 +215,9 @@ For step response , lets consider a change in vd and change in ambient temperatu
 
 **Only Proportional Control on Temperature Controller**
 
+![image](https://user-images.githubusercontent.com/111511248/186735568-42fd2fad-67d2-41cf-a46d-bd5421d3a3d9.png)
+
+
 With or without the disturbance , proportional control doesn’t get the temperature to the desired setting; with the
 disturbance loop is susceptible to external effects. 
 
@@ -212,12 +227,17 @@ But high gain results in strong overshoot at start that continues to travel back
 
 **Only Integral Control on Temperature Controller**
 
+![image](https://user-images.githubusercontent.com/111511248/186735702-610c522e-68c9-46de-a359-f19fa6bccc4a.png)
+
 This system takes a lot longer to settle out than the same plant with proportional control
  but when it does settle out it settles out to the target value - even the undesired response
  from the disturbance goes to zero eventually.
  
  **Proportional and Integral Control on Temperature Controller**
  
+ ![image](https://user-images.githubusercontent.com/111511248/186735874-27e364a8-4fe3-4d94-ba31-2be75fde91de.png)
+
+
  The heater still settles out to the exact target temperature as with pure integral control
  , but with PI control it settles out 2 to 3 times faster.
 
@@ -232,6 +252,9 @@ saturation can cause the integrator state to grow (wind up) to very large values
 plant reaches the target, the integrator value is still very large, so the plant drives beyond
 the target while the integrator unwinds and the process reverses. This situation can get so
 bad that the system never settles out, but just slowly oscillates around the target position. 
+
+![image](https://user-images.githubusercontent.com/111511248/186736010-5292a1d8-f620-429e-9a3f-7b0a8d91c1c6.png)
+
 
 To deal with integrator windup , we can limit the value of integrator state(integral term ) within the bounds 
 of the drive output.
