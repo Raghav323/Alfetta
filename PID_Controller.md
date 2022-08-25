@@ -100,6 +100,9 @@ pid->derState = input;
  3.Actuator : An actuator is a device that produces a motion by converting energy and signals going into the system.
 
  ### <div align="center">1.Motor and gear </div>
+ 
+ ![image](https://user-images.githubusercontent.com/111511248/186733314-35e0479a-644a-43a1-a3ca-e49b392d4173.png)
+ 
 The first example plant is a motor driving a gear train, with the output position of the
 gear train being monitored by a potentiometer .
 The potentiometer outputs a voltage proportional to the position of the output shaft .
@@ -119,6 +122,7 @@ from zero to some constant value at time t = 0 . Its equivalent to plugging Vm= 
 
 On solving we get motor_angle=A+ Be^-kx + Cx  which has following graph : 
 
+![image](https://user-images.githubusercontent.com/111511248/186732854-12485eaf-d0ec-4a66-a38b-c7affd39b8fb.png)
 
 **Only Proportional Control on Motor and Gear** 
 
@@ -137,11 +141,15 @@ swings until something hits a limit
 
 **Proportional and Integral Control on Motor and Gear**
 
+
+
 The position takes longer to settle out than the system with pure proportional control, but unlike the
 motor with pure integral control it does settle out, and the system will not settle to the
 wrong spot.
 
  ###  <div align="center"> 2. Precision Actuator </div>
+ 
+ ![image](https://user-images.githubusercontent.com/111511248/186733210-e9804f24-4a2d-4e12-93cc-f81ca6bfa055.png)
  
  Used for accurate positional movements .Software commands the current in the coil. This current 
  sets up a magnetic field which exerts a force on the magnet. The magnet is attached to the stage, which moves 
@@ -155,6 +163,8 @@ wrong spot.
  
  For step response , i=constant , solving equation using basic calculus gives equation of parabola. 
  This makes control problem even harder as the system will keep wanting to move when it gets going .
+ 
+ ![image](https://user-images.githubusercontent.com/111511248/186732596-e1f67e41-121b-40c9-b4b9-6ce2e4e59814.png)
  
  **Only Proportional Control on Precision Actuator**
  
@@ -179,6 +189,9 @@ other systems.
 
 
  ###  <div align="center">3. Temperature Controller </div>
+ 
+ ![image](https://user-images.githubusercontent.com/111511248/186733149-06205047-ebd3-4a94-9def-c0ed6289be00.png)
+ 
  The vessel is heated by an electric heater, and the temperature of its
 contents is sensed by a temperature sensing device. Its DE: 
 
@@ -186,6 +199,7 @@ D^2 T = -(1/tau1 + 1/tau2) D -T/(tau1*tau2) + (K*V + Ta)/(tau1*tau2) where T is 
 
 For step response , lets consider a change in vd and change in ambient temperature , Change in ambient temp can be regarded as disturbance : 
 
+![image](https://user-images.githubusercontent.com/111511248/186733014-80066882-37bd-4b45-9432-4b4578ed8d84.png)
 
 **Only Proportional Control on Temperature Controller**
 
