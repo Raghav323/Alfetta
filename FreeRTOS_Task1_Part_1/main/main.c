@@ -8,7 +8,7 @@ typedef struct qBinary_semaphore_Handle{
     QueueHandle_t queue;
     int placeholder;
     int dump;
-};
+}
 
  void qCreate_Binary_Semaphore(struct qBinary_semaphore_Handle *bsh){
         bsh->queue=xQueueCreate(1,sizeof(int));
