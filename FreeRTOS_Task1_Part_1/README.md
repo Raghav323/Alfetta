@@ -12,3 +12,6 @@ by any thread unlike the mutex which can be released only by the thread that acq
 # Output After Implementing functionality of Semaphore using Queue
 
 ![Screenshot from 2022-08-31 13-05-39](https://user-images.githubusercontent.com/111511248/187620268-d1b70ea9-f18c-44fd-b862-b122836aa859.png)
+
+A semaphore is implemented using functions xQueueSend and xQueueReceive . The shared resource is being accessed and modified by two different tasks with
+the help of the semaphore created . Every task takes the semaphore , then works on the shared resource and gives back the semaphore signaling that it does not need the semaphore right now . 
