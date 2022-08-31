@@ -1,34 +1,14 @@
-LED BLINK
-============
+# Implementing Semaphore using Queues 
 
-![LED blinking](https://pic-microcontroller.com/wp-content/uploads/2015/10/A-complete-guide-for-LED-Blinking.jpg)
+1. Semaphore : Semaphore is simply a variable that is non-negative and shared between threads.
+This variable is used to solve the critical section problem and to achieve process synchronization in the multiprocessing environment.
+ 
+2. Binary Semaphore :  A semaphore which can take either 1 or 0 . Also called as mutex lock . Differs from the mutex in the fact that it can be signaled
+by any thread unlike the mutex which can be released only by the thread that acquired it .
 
-TABLE OF CONTENTS
-1. [What is a LED?](#des)
-2. [How does a LED blinks?](#how)
-3. [Circuit Diagram](#cktd)
+3. Queues : A queue is a simple FIFO system with atomic reads and writes . Queue may be used to start another task to start doing its work while the primary task continues doing its own work independently.
 
-<a name="des"></a>
-What is a LED?
------------------
-<p><strong><em>Light Emitting Diode</em></strong> is a device that produces light on electrical and electronic devices.<br> It is a light sensor which emits light that is reflected from surface which further helps in sensing the environment.</p>
 
-<a name="how"></a>
-How does a LED blinks?
----------------------
-There are several ways of making a blinking LED circuit.
+# Output After Implementing functionality of Semaphore using Queue
 
-<ul>
-  <li>A relay</li>
-  <li>A transistors</li>
-  <li>An inverter (a logic NOT-gate)</li>
-  <li>PWM</li>
-</ul>
-
-![LED blinking with ESP32](https://content.instructables.com/ORIG/F90/E6L0/JTWT5IR7/F90E6L0JTWT5IR7.jpg?crop=1%3A1&frame=1&width=320)
-
-<a name="cktd"></a>
-
-Circuit Diagram
-----------------
-![ckt](https://user-images.githubusercontent.com/70626983/108228025-7ba4d380-7164-11eb-8662-e6fbaa5f42f4.png)
+![Screenshot from 2022-08-31 13-05-39](https://user-images.githubusercontent.com/111511248/187620268-d1b70ea9-f18c-44fd-b862-b122836aa859.png)
