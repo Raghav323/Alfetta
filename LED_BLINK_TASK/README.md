@@ -7,6 +7,8 @@ TABLE OF CONTENTS
 1. [What is a LED?](#des)
 2. [How does a LED blinks?](#how)
 3. [Circuit Diagram](#cktd)
+4. [Implementing LED blink using GPIO pins](#gpio)
+5. [OUTPUT](#o)
 
 <a name="des"></a>
 What is a LED?
@@ -32,3 +34,37 @@ There are several ways of making a blinking LED circuit.
 Circuit Diagram
 ----------------
 ![ckt](https://user-images.githubusercontent.com/70626983/108228025-7ba4d380-7164-11eb-8662-e6fbaa5f42f4.png)
+<a name="gpio"></a>
+Implementing LED blink using GPIO pins 
+-----------------
+<p>A <strong><em>General Purpose Input Output Pin </em></strong> is a device that is used to communicate between hardware and software .
+We can use these to blink LEDs on and off using standard functions from driver/gpio.h header file .
+
+<strong><em>esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level)</em></strong> : Sets the gpio with the given gpio number to either on and off .
+
+Parameters : GPIO pin Number and desired state of GPIO .
+
+Returns ESP_OK if set successfully .
+
+<strong><em>struct gpio_config_t </em></strong>: Struct used to configure gpio pins . After configuring them once we can set them on and off using gpio_set_level()
+
+Parameters :
+
+1. uint64_t pin_bit_mask : set with bit mask, each bit maps to a GPIO
+
+2. gpio_mode_t mode: set input/output mode
+
+3. gpio_pullup_t pull_up_en: pull-up
+
+4. gpio_pulldown_t pull_down_en : pull-down
+
+5. gpio_int_type_t intr_type : interrupt type
+
+Returns ESP_OK if successfully configured .
+
+<a name="o"></a>
+
+
+
+
+</p>
