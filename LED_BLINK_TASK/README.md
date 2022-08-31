@@ -35,6 +35,7 @@ Circuit Diagram
 ----------------
 ![ckt](https://user-images.githubusercontent.com/70626983/108228025-7ba4d380-7164-11eb-8662-e6fbaa5f42f4.png)
 <a name="gpio"></a>
+
 Implementing LED blink using GPIO pins 
 -----------------
 <p>A <strong><em>General Purpose Input Output Pin </em></strong> is a device that is used to communicate between hardware and software .
@@ -63,12 +64,9 @@ Parameters :
 Returns ESP_OK if successfully configured .
 
 <a name="o"></a>
+    OUTPUT
+-----------------
 
 https://user-images.githubusercontent.com/111511248/187690531-9be6ae85-1053-4482-86a2-69e93fd1cb0f.mp4
-
-
-
-
-
 
 </p>
