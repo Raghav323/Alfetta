@@ -4,18 +4,22 @@
 #include "freertos/semphr.h"
 #include "esp_log.h"
 
+// Semaphore Handle made using queue handle
 typedef struct qBinary_semaphore_Handle{
     QueueHandle_t queue;
     int placeholder;
     int dump;
 };
 
+// Semaphore is being created but infact queue is being created inside.
  void qCreate_Binary_Semaphore(struct qBinary_semaphore_Handle *bsh){
         bsh->queue=xQueueCreate(1,sizeof(int));
         bsh->placeholder=1;
         
         bsh->dump=0;
     }
+
+// Taking the Semaphore is equivalent to taking value from queue
  bool qSemaphoreTake(struct qBinary_semaphore_Handle *bsh,float delay){
         bool result=xQueueReceive(bsh->queue,&(bsh->dump),delay);
         if (result){
@@ -24,6 +28,7 @@ typedef struct qBinary_semaphore_Handle{
         return 0;
     }
 
+// Giving the Semaphore is equivalent to giving some value to queue.
 void qSemaphoreGive(struct qBinary_semaphore_Handle *bsh,float delay){
         bool result=xQueueSend(bsh->queue,&(bsh->placeholder),delay);
         if (result){
@@ -102,12 +107,11 @@ void led_blink_2()
 void app_main()
 {
     qCreate_Binary_Semaphore(&bi_sema);
-    // xSemaphoreCreateBinary() Creates a new binary semaphore instance, and
-    // returns a handle by which the new semaphore can be referenced.
+    // qCreate_Binary_Semaphore() Creates a new binary semaphore instance using Queues.
+    
     
     qSemaphoreGive(&bi_sema,0);
-    // The semaphore must be given before it can be taken if calls are made
-    // using xSemaphoreCreateBinary()
+    // The semaphore must be given before it can be taken.
 
     xTaskCreate(&led_blink_1, "Led Blink 1", 4096, NULL, 0, NULL);
     xTaskCreate(&led_blink_2, "Led Blink 2", 4096, NULL, 1, NULL);
