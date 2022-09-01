@@ -8,21 +8,26 @@ by any thread unlike the mutex which can be released only by the thread that acq
 
 3. **Task Notifications** : Each RTOS task has an array of task notifications. Each task notification has a notification state that can be either 'pending' or 'not pending', and a 32-bit notification value.
 
-**xTaskNotifyGiveIndexed(TaskHandle,Index)** :Takes in the handle of the task to notify as well as the index of the task notification in the array of task notifications 
+## Functions Used 
+
+1. **xTaskNotifyGiveIndexed(TaskHandle,Index)** :Takes in the handle of the task to notify as well as the index of the task notification in the array of task notifications 
 of that task which is to be changed . 
 
-**xTaskNotifyTakeIndexed(Index,Clear_on_exit,Waiting time)** :Used when a task notification is to be used like a light weight binary semaphore . Takes in the index of the task notification to wait for , the second parameter specifies if the function should either reset the value of the task notification on exit 
+2. **xTaskNotifyTakeIndexed(Index,Clear_on_exit,Waiting time)** :Used when a task notification is to be used like a light weight binary semaphore . Takes in the index of the task notification to wait for , the second parameter specifies if the function should either reset the value of the task notification on exit 
 or decrement it by 1 . The third parameter specifies the time for which it should wait to receive the task notification . It returns the task notification value . 
 
-**xTaskNotifyGive()** : Equivalent to xTaskNotifyGiveIndexed(TaskHandle,0)
+3. **xTaskNotifyGive()** : Equivalent to xTaskNotifyGiveIndexed(TaskHandle,0)
 
-**xTaskNotifyTake()** : Equivalent to xTaskNotifyTakeIndexed(0,Clear_on_exit,Waiting time)
+4. **xTaskNotifyTake()** : Equivalent to xTaskNotifyTakeIndexed(0,Clear_on_exit,Waiting time)
+
  
-**LOGIC** : We increment the task notification of the task to which we want to give the semaphore by using xTaskNotifyGive() . And in both tasks we check
+## LOGIC 
+
+We increment the task notification of the task to which we want to give the semaphore by using xTaskNotifyGive() . And in both tasks we check
 if their task notifications are incremented from 0 to 1 using xTaskNotifyTake(1,waiting time) which will also set the task notification value to 0 if 
 it is set to 1 on exiting therefore "freeing up the semaphore " and then giving it to again to the other function using xTaskNotifyGive() . Also we use a task start_transmission() to give the first task notification to a task .
 
-# Output After Implementing functionality of Semaphore using Queue
+## Output After Implementing functionality of Semaphore using Task Notifications
 
 ![Screenshot from 2022-09-01 17-43-15](https://user-images.githubusercontent.com/111511248/187911534-48ea1e6a-d51c-4066-a88b-1db80124e550.png)
 
