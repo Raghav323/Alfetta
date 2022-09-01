@@ -1,34 +1,32 @@
-LED BLINK
-============
+# Implementing Semaphore using Task Notifications 
 
-![LED blinking](https://pic-microcontroller.com/wp-content/uploads/2015/10/A-complete-guide-for-LED-Blinking.jpg)
+1. **Semaphore** : Semaphore is simply a variable that is non-negative and shared between threads.
+This variable is used to solve the critical section problem and to achieve process synchronization in the multiprocessing environment.
+ 
+2. **Binary Semaphore** :  A semaphore which can take either 1 or 0 . Also called as mutex lock . Differs from the mutex in the fact that it can be signaled
+by any thread unlike the mutex which can be released only by the thread that acquired it .
 
-TABLE OF CONTENTS
-1. [What is a LED?](#des)
-2. [How does a LED blinks?](#how)
-3. [Circuit Diagram](#cktd)
+3. **Task Notifications** : Each RTOS task has an array of task notifications. Each task notification has a notification state that can be either 'pending' or 'not pending', and a 32-bit notification value.
 
-<a name="des"></a>
-What is a LED?
------------------
-<p><strong><em>Light Emitting Diode</em></strong> is a device that produces light on electrical and electronic devices.<br> It is a light sensor which emits light that is reflected from surface which further helps in sensing the environment.</p>
+**xTaskNotifyGiveIndexed(TaskHandle,Index)** :Takes in the handle of the task to notify as well as the index of the task notification in the array of task notifications 
+of that task which is to be changed . 
 
-<a name="how"></a>
-How does a LED blinks?
----------------------
-There are several ways of making a blinking LED circuit.
+**xTaskNotifyTakeIndexed(Index,Clear_on_exit,Waiting time)** :Used when a task notification is to be used like a light weight binary semaphore . Takes in the index of the task notification to wait for , the second parameter specifies if the function should either reset the value of the task notification on exit 
+or decrement it by 1 . The third parameter specifies the time for which it should wait to receive the task notification . It returns the task notification value . 
 
-<ul>
-  <li>A relay</li>
-  <li>A transistors</li>
-  <li>An inverter (a logic NOT-gate)</li>
-  <li>PWM</li>
-</ul>
+**xTaskNotifyGive()** : Equivalent to xTaskNotifyGiveIndexed(TaskHandle,0)
 
-![LED blinking with ESP32](https://content.instructables.com/ORIG/F90/E6L0/JTWT5IR7/F90E6L0JTWT5IR7.jpg?crop=1%3A1&frame=1&width=320)
+**xTaskNotifyTake()** : Equivalent to xTaskNotifyTakeIndexed(0,Clear_on_exit,Waiting time)
+ 
+**LOGIC** : We increment the task notification of the task to which we want to give the semaphore by using xTaskNotifyGive() . And in both tasks we check
+if their task notifications are incremented from 0 to 1 using xTaskNotifyTake(1,waiting time) which will also set the task notification value to 0 if 
+it is set to 1 on exiting therefore "freeing up the semaphore " and then giving it to again to the other function using xTaskNotifyGive() . Also we use a task start_transmission() to give the first task notification to a task .
 
-<a name="cktd"></a>
+# Output After Implementing functionality of Semaphore using Queue
 
-Circuit Diagram
-----------------
-![ckt](https://user-images.githubusercontent.com/70626983/108228025-7ba4d380-7164-11eb-8662-e6fbaa5f42f4.png)
+![Screenshot from 2022-09-01 17-43-15](https://user-images.githubusercontent.com/111511248/187911534-48ea1e6a-d51c-4066-a88b-1db80124e550.png)
+
+
+
+The functionality of semaphore is implemented using functions xTaskNotifyGive and xTaskNotifyTake . The shared resource is being accessed and modified by two different tasks with the help of the semaphore created . Every task takes the semaphore , then works on the shared resource and gives back the semaphore signaling that it does not need the semaphore now.
+
