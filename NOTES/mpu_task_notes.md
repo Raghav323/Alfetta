@@ -4,7 +4,7 @@
 accelerometer to obtain the changes in roll and pitch used for self balancing task.
 
 **euler_angle[2],mpu_offset[2**] are float arrays of size 2 to store 
-pitch and yaw values . These are passed to read_mpu function to find 
+pitch and roll values . These are passed to read_mpu function to find 
 final angles .
 
 **Tag**: const character pointer used as tag for esplogi function .
