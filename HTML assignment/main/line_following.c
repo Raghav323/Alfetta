@@ -4,7 +4,6 @@
 #include "sra_board.h"
 #include "tuning_http_server.h"
 #include <math.h>
-#include "tuning_websocket_server.h"
 
 #define MODE NORMAL_MODE
 #define BLACK_MARGIN 400
@@ -87,37 +86,6 @@ void calculate_error()
         error = pos;
     }
 }
-// self balancing
-void calculate_motor_command(const float pitch_error, float *motor_cmd)
-{
-	static float prev_pitch_error = 0.0f;
-	static float pitch_area = 0.0f;
-	float pitch_error_difference = 0.0f;
-
-	float pitch_correction = 0.0f, absolute_pitch_correction = 0.0f;
-	
-	float pitch_rate = 0.0f;
-    float P_term = 0.0f, I_term = 0.0f, D_term = 0.0f;
-
-	pitch_error_difference = pitch_error - prev_pitch_error;
-    pitch_area += (pitch_error);
-	pitch_rate = pitch_error_difference;
-
-	P_term = read_pid_const().kp * pitch_error;                                              //pitch kp ki kd
-	I_term = read_pid_const().ki * bound(pitch_area, -MAX_PITCH_AREA, MAX_PITCH_AREA);
-	D_term = read_pid_const().kd * bound(pitch_rate, -MAX_PITCH_RATE, MAX_PITCH_RATE);
-
-	pitch_correction = P_term + I_term + D_term;
-
-    plot_graph(P_term, D_term, I_term, pitch_correction, pitch_error);
-	
-	absolute_pitch_correction = fabsf(pitch_correction);
-
-	*motor_cmd = bound(absolute_pitch_correction, 0, MAX_PITCH_CORRECTION);
-	prev_pitch_error = pitch_error;
-}
-
-
 
 
 
