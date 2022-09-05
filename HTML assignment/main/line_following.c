@@ -109,13 +109,19 @@ void self_and_line(void* arg)
         // Diplaying kp, ki, kd values on OLED 
         if (read_pid_const().val_changed)
         {
-            display_pid_values(read_pid_const().kp, read_pid_const().ki, read_pid_const().kd,read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, &oled_config);
+            display_pid_values(read_pid_const().kp, read_pid_const().ki, read_pid_const().kd, &oled_config);
+            vTaskDelay(1000);
+            display_pid_values(read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, &oled_config);
+            vTaskDelay(1000);
             reset_val_changed_pid_const();
         }
 
         if (read_pid_const2().val_changed)
         {
-             display_pid_values(read_pid_const().kp, read_pid_const().ki, read_pid_const().kd,read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, &oled_config);
+            display_pid_values(read_pid_const().kp, read_pid_const().ki, read_pid_const().kd, &oled_config);
+            vTaskDelay(1000);
+            display_pid_values(read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, &oled_config);
+            vTaskDelay(1000);
             reset_val_changed_pid_const2();
         }
 #endif
