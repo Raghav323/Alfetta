@@ -1,34 +1,12 @@
-LED BLINK
-============
+# Solving Problem of DeadLock by Changing Wait Time 
 
-![LED blinking](https://pic-microcontroller.com/wp-content/uploads/2015/10/A-complete-guide-for-LED-Blinking.jpg)
 
-TABLE OF CONTENTS
-1. [What is a LED?](#des)
-2. [How does a LED blinks?](#how)
-3. [Circuit Diagram](#cktd)
+**DeadLock** : A deadlock consists of a set of blocked processes, each holding a resource and waiting to acquire a resource held by another process in the set.
 
-<a name="des"></a>
-What is a LED?
------------------
-<p><strong><em>Light Emitting Diode</em></strong> is a device that produces light on electrical and electronic devices.<br> It is a light sensor which emits light that is reflected from surface which further helps in sensing the environment.</p>
 
-<a name="how"></a>
-How does a LED blinks?
----------------------
-There are several ways of making a blinking LED circuit.
+In function XsemaphoreTake(semaphore handle , wait_time) , we can change the wait time from portMAX_Delay to some lower value so that 
+the task does not wait indefinitely for the semaphore and after some time moves onto the next bit of code .
 
-<ul>
-  <li>A relay</li>
-  <li>A transistors</li>
-  <li>An inverter (a logic NOT-gate)</li>
-  <li>PWM</li>
-</ul>
+# OUTPUT 
 
-![LED blinking with ESP32](https://content.instructables.com/ORIG/F90/E6L0/JTWT5IR7/F90E6L0JTWT5IR7.jpg?crop=1%3A1&frame=1&width=320)
-
-<a name="cktd"></a>
-
-Circuit Diagram
-----------------
-![ckt](https://user-images.githubusercontent.com/70626983/108228025-7ba4d380-7164-11eb-8662-e6fbaa5f42f4.png)
+![Screenshot from 2022-09-05 08-40-50](https://user-images.githubusercontent.com/111511248/188353502-2f3fd591-a83c-4862-8e8b-896ab6ce3139.png)
