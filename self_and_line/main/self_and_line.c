@@ -21,7 +21,7 @@
 float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
-bool run =0;
+bool run = 0 ;
 int optimum_duty_cycle = 63;
 int lower_duty_cycle = 50;
 int higher_duty_cycle = 76;
@@ -120,8 +120,6 @@ void calculate_motor_command(const float pitch_error, float *motor_cmd)
 
 	pitch_correction = P_term + I_term + D_term;
 
-    plot_graph(P_term, D_term, I_term, pitch_correction, pitch_error);
-
 	absolute_pitch_correction = fabsf(pitch_correction);
 
 	*motor_cmd = bound(absolute_pitch_correction, 0, MAX_PITCH_CORRECTION);
@@ -164,9 +162,11 @@ void self_and_line(void* arg)
 	float pitch_cmd = 0.0f;
 
   while(true){
-        bool condition = euler_angle[1]<-20 || euler_angle[1]>0 ;
+        
 
         if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
+            ESP_LOGI("debug", "KP111111: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd ,  read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2);
+            bool condition = euler_angle[1]<-20 || euler_angle[1]>0 ;
                 if (condition){    
                     bool run = 1;
                 }
@@ -184,7 +184,7 @@ void self_and_line(void* arg)
 			if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK)
 			{
 				
-				pitch_cmd = read_pid_const().setpoint;
+				pitch_cmd = read_pid_const2().setpoint;
 				pitch_angle = euler_angle[1];
 				pitch_error = pitch_cmd - pitch_angle;
 
@@ -217,11 +217,12 @@ void self_and_line(void* arg)
 				
 	
 				
-               //vTaskDelay(10 / portTICK_PERIOD_MS);
-			}((angle>offset_angle)+0.05*offset_angle && angle< (offset_angle- 0.05*offset_angle)) 
+               vTaskDelay(10 / portTICK_PERIOD_MS);
+			}
 
-            bool condition2 = euler_angle[1]<-20 || euler_angle[1]>0 ;
+           
             if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
+                 bool condition2 = euler_angle[1]<-20 || euler_angle[1]>0 ;
                 if (!condition2){    
                     bool run = 0;
         }
@@ -255,7 +256,8 @@ void self_and_line(void* arg)
         set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, left_duty_cycle);
         set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, right_duty_cycle);
 
-         // vTaskDelay(10 / portTICK_PERIOD_MS);
+    
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     
 
       ESP_LOGI("debug", "KP: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd ,  read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2);
@@ -274,7 +276,6 @@ void app_main()
     xTaskCreate(&self_and_line, "self_and_line", 4096, NULL, 1, NULL);
     start_tuning_http_server();
 }
-
 
 
 
