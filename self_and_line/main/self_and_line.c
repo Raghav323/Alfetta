@@ -163,9 +163,9 @@ void self_and_line(void* arg)
 
   while(true){
         
-
+            enable_mpu6050();
         if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
-            ESP_LOGI("debug", "KP111111: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd ,  read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2);
+            
             bool condition = euler_angle[1]<-20 || euler_angle[1]>0 ;
                 if (condition){    
                     bool run = 1;
