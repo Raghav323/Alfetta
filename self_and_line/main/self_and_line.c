@@ -21,7 +21,7 @@
 float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
-
+bool run =0;
 int optimum_duty_cycle = 63;
 int lower_duty_cycle = 50;
 int higher_duty_cycle = 76;
@@ -162,9 +162,16 @@ void self_and_line(void* arg)
 	float motor_cmd, motor_pwm = 0.0f;
 
 	float pitch_cmd = 0.0f;
-  while(true){
 
-            if (offset conditon){            //if not balanced then enter balance code
+  while(true){
+        bool condition = euler_angle[1]<-20 || euler_angle[1]>0 ;
+
+        if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
+                if (condition){    
+                    bool run = 1;
+                }
+        }
+                    //if not balanced then enter balance code
 
 
 
@@ -172,7 +179,7 @@ void self_and_line(void* arg)
 	     {
 		
 		enable_motor_driver(a, NORMAL_MODE);
-		while (1)
+		while (run)
 		{
 			if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK)
 			{
@@ -213,8 +220,11 @@ void self_and_line(void* arg)
                //vTaskDelay(10 / portTICK_PERIOD_MS);
 			}((angle>offset_angle)+0.05*offset_angle && angle< (offset_angle- 0.05*offset_angle)) 
 
-
-            if(offset condition met) {exit while loop}
+            bool condition2 = euler_angle[1]<-20 || euler_angle[1]>0 ;
+            if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
+                if (!condition2){    
+                    bool run = 0;
+        }
 
 		}
 	}
@@ -267,13 +277,5 @@ void app_main()
 
 
 
-
- if ((angle > offset_angle + 0.05*offset_angle) || (angle < offset_angle- 0.05*offset_angle)) {
-
-
-    if ((angle<offset_angle + 0.05*offset_angle) && angle< (offset_angle - 0.05*offset_angle)) {
-             EXIT
-    }
- }
 
 
