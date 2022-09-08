@@ -21,7 +21,7 @@
 float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
-bool run = 0 ;
+bool run = 1 ;
 int optimum_duty_cycle = 50;
 int lower_duty_cycle = 37;
 int higher_duty_cycle = 63;
@@ -154,7 +154,7 @@ void self_and_line(void* arg)
        }
 */
                
-	float euler_angle[2], mpu_offset[2] = {0.0f, 0.0f};
+	float euler_angle[2]={0.0f,0.0f}, mpu_offset[2] = {0.0f, 0.0f};
 
 	float pitch_angle, pitch_error;
 
@@ -164,26 +164,23 @@ void self_and_line(void* arg)
 
   while(true){
         
-              enable_mpu6050();
-        if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
+              
+     
            
-           bool condition = euler_angle[1]<-20 || euler_angle[1]>0 ;
-                if (condition){    
-                    bool run = 1;
-                }
-        }
+        
+        
                     //if not balanced then enter balance code
 
 
 
-            	if (enable_mpu6050() == ESP_OK)
-	     {
+            //	enable_mpu6050();
+	     
 		
-		enable_motor_driver(a, NORMAL_MODE);
+		//enable_motor_driver(a, NORMAL_MODE);
 		while (run)
 		{
-			if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK)
-			{
+			// read_mpu6050(euler_angle, mpu_offset);
+			
 				
 				pitch_cmd = read_pid_const2().setpoint;
 				pitch_angle = euler_angle[1];
@@ -195,47 +192,48 @@ void self_and_line(void* arg)
 				if (pitch_error > 1)
 				{
 					
-					set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
-					set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
+					//set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
+					//set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
+                    run = 0;
 				}
 
 				
 				else if (pitch_error < -1)
 				{
 					
-					set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
-					set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
+					//set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
+					//set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
+                    run = 0;
 				}
 
 				
 				else
 				{
 					
-					set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
-					set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
+					//set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
+					//set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
+                   run = 0;
 				}
 
 				
 	
-				
-               vTaskDelay(10 / portTICK_PERIOD_MS);
-			}
+				 run = 0;
+              vTaskDelay(10 / portTICK_PERIOD_MS);
+			
 
            
-            if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
-                 bool condition2 = euler_angle[1]<-20 || euler_angle[1]>0 ;
-                if (!condition2){    
-                    bool run = 0;
-        }
+            
+                   
+        
 
-		}
+		
 	}
 
-            }
+            
 
 
             //line follw 
-             ESP_ERROR_CHECK(enable_motor_driver(a, NORMAL_MODE));
+            // ESP_ERROR_CHECK(enable_motor_driver(a, NORMAL_MODE));
              ESP_ERROR_CHECK(enable_line_sensor());
            //  ESP_ERROR_CHECK(enable_bar_graph());
 
@@ -254,14 +252,15 @@ void self_and_line(void* arg)
         left_duty_cycle = bound((optimum_duty_cycle - correction), lower_duty_cycle, higher_duty_cycle);
         right_duty_cycle = bound((optimum_duty_cycle + correction), lower_duty_cycle, higher_duty_cycle);
 
-        set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, left_duty_cycle);
-        set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, right_duty_cycle);
+       // set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, left_duty_cycle);
+       // set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, right_duty_cycle);
 
-    
-        vTaskDelay(10 / portTICK_PERIOD_MS);
     
 
       ESP_LOGI("debug", "KP: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd ,  read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2);
+          
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+    
   }
         vTaskDelete(NULL);
 }
