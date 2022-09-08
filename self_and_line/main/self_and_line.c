@@ -22,15 +22,16 @@ float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
 bool run = 0 ;
-int optimum_duty_cycle = 63;
-int lower_duty_cycle = 50;
-int higher_duty_cycle = 76;
+int optimum_duty_cycle = 50;
+int lower_duty_cycle = 37;
+int higher_duty_cycle = 63;
 float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3,1,-1,-3};
 
 float error=0, prev_error=0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
 //line follow yaw
+/*
 void lsa_to_bar()
 {   
     uint8_t var = 0x00;                     
@@ -41,7 +42,7 @@ void lsa_to_bar()
         var = bool_to_uint8(number);  //A helper function to convert bool array to unsigned int.
         ESP_ERROR_CHECK(set_bar_graph(var)); //Setting bar graph led with unsigned int value.
     }
-}
+}               */
 
 void calculate_correction()
 {
@@ -163,10 +164,10 @@ void self_and_line(void* arg)
 
   while(true){
         
-            enable_mpu6050();
+              enable_mpu6050();
         if (read_mpu6050(euler_angle, mpu_offset) == ESP_OK){
-            
-            bool condition = euler_angle[1]<-20 || euler_angle[1]>0 ;
+           
+           bool condition = euler_angle[1]<-20 || euler_angle[1]>0 ;
                 if (condition){    
                     bool run = 1;
                 }
@@ -236,7 +237,7 @@ void self_and_line(void* arg)
             //line follw 
              ESP_ERROR_CHECK(enable_motor_driver(a, NORMAL_MODE));
              ESP_ERROR_CHECK(enable_line_sensor());
-             ESP_ERROR_CHECK(enable_bar_graph());
+           //  ESP_ERROR_CHECK(enable_bar_graph());
 
     
         line_sensor_readings = read_line_sensor();
@@ -248,7 +249,7 @@ void self_and_line(void* arg)
         
         calculate_error();
         calculate_correction();
-        lsa_to_bar();
+       // lsa_to_bar();
         
         left_duty_cycle = bound((optimum_duty_cycle - correction), lower_duty_cycle, higher_duty_cycle);
         right_duty_cycle = bound((optimum_duty_cycle + correction), lower_duty_cycle, higher_duty_cycle);
@@ -276,6 +277,7 @@ void app_main()
     xTaskCreate(&self_and_line, "self_and_line", 4096, NULL, 1, NULL);
     start_tuning_http_server();
 }
+
 
 
 
