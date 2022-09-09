@@ -1,10 +1,8 @@
-# Edit following two lines to set component requirements (see docs)
-set(COMPONENT_REQUIRES )
-set(COMPONENT_PRIV_REQUIRES )
+# The following lines of boilerplate have to be in your project's
+# CMakeLists in this exact order for cmake to work correctly
+cmake_minimum_required(VERSION 3.5)
 
-set(COMPONENT_SRCS "self_and_line.c" "tuning_http_server.c" "wifi_handler.c")
-set(COMPONENT_ADD_INCLUDEDIRS "include")
+set(EXTRA_COMPONENT_DIRS ../components)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-register_component()
-
-spiffs_create_partition_image(www "${CMAKE_CURRENT_SOURCE_DIR}/../frontend" FLASH_IN_PROJECT)
+project(self_and_line)
