@@ -17,6 +17,10 @@
 #define MIN_PWM (60.0f)
 
 
+/*self- kp ki kd = 5 0 1 ; 
+line-  kp ki kd=   0.9 0 6.5;
+*/
+
 /* Self Balancing Tuning Parameters
 float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
@@ -31,7 +35,7 @@ const int weights[4] = {3,1,-1,-3};
 float error=0, prev_error=0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
 //line follow yaw
-/*
+
 void lsa_to_bar()
 {   
     uint8_t var = 0x00;                     
@@ -42,7 +46,7 @@ void lsa_to_bar()
         var = bool_to_uint8(number);  //A helper function to convert bool array to unsigned int.
         ESP_ERROR_CHECK(set_bar_graph(var)); //Setting bar graph led with unsigned int value.
     }
-}               */
+}              
 
 void calculate_correction()
 {
@@ -153,114 +157,63 @@ void self_and_line(void* arg)
            vTaskDelete(NULL);
        }
 */
-               
-	float euler_angle[2]={0.0f,0.0f}, mpu_offset[2] = {0.0f, 0.0f};
+    
+	float euler_angle[2], mpu_offset[2] = {0.0f, 0.0f};
 
 	float pitch_angle, pitch_error;
 
+	
 	float motor_cmd, motor_pwm = 0.0f;
 
+	
 	float pitch_cmd = 0.0f;
+  enable_mpu6050();
+  enable_motor_driver(a, NORMAL_MODE);
 
   while(true){
-        
+        read_mpu6050(euler_angle, mpu_offset);
+        pitch_cmd = read_pid_const2().setpoint;
+
+		pitch_angle = euler_angle[1];
+		pitch_error = pitch_cmd - pitch_angle;
+
+		calculate_motor_command(pitch_error, &motor_cmd);
+
+
+		motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
+
+				
+				if (pitch_error > 1)
+				{
+					
+					set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
+					set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
+				}
+
+			
+				else if (pitch_error < -1)
+				{
+					
+					set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
+					
+					set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
+				}
+
+				// Bot remains in desired region for vertical balance
+				else
+				{
+					// YAHA SPEED DUNGA  like set motor speed forward something...... jab tak good enough balance and move na hote rhe
+                    
+				}
+
               
      
            
         
-        
-                    //if not balanced then enter balance code
-
-
-
-            //	enable_mpu6050();
-	     
-		
-		//enable_motor_driver(a, NORMAL_MODE);
-		while (run)
-		{
-			// read_mpu6050(euler_angle, mpu_offset);
-			
-				
-				pitch_cmd = read_pid_const2().setpoint;
-				pitch_angle = euler_angle[1];
-				pitch_error = pitch_cmd - pitch_angle;
-
-				calculate_motor_command(pitch_error, &motor_cmd);
-             	motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
-
-				if (pitch_error > 1)
-				{
-					
-					//set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
-					//set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
-                    run = 0;
-				}
-
-				
-				else if (pitch_error < -1)
-				{
-					
-					//set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
-					//set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
-                    run = 0;
-				}
-
-				
-				else
-				{
-					
-					//set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
-					//set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
-                   run = 0;
-				}
-
-				
-	
-				 run = 0;
-              vTaskDelay(10 / portTICK_PERIOD_MS);
-			
-
-           
-            
-                   
-        
-
-		
-	}
-
-            
-
-
-            //line follw 
-            // ESP_ERROR_CHECK(enable_motor_driver(a, NORMAL_MODE));
-             ESP_ERROR_CHECK(enable_line_sensor());
-           //  ESP_ERROR_CHECK(enable_bar_graph());
-
     
-        line_sensor_readings = read_line_sensor();
-        for(int i = 0; i < 4; i++)
-        {
-            line_sensor_readings.adc_reading[i] = bound(line_sensor_readings.adc_reading[i], BLACK_MARGIN, WHITE_MARGIN);
-            line_sensor_readings.adc_reading[i] = map(line_sensor_readings.adc_reading[i], BLACK_MARGIN, WHITE_MARGIN, bound_LSA_LOW, bound_LSA_HIGH);
-        }
-        
-        calculate_error();
-        calculate_correction();
-       // lsa_to_bar();
-        
-        left_duty_cycle = bound((optimum_duty_cycle - correction), lower_duty_cycle, higher_duty_cycle);
-        right_duty_cycle = bound((optimum_duty_cycle + correction), lower_duty_cycle, higher_duty_cycle);
-
-       // set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, left_duty_cycle);
-       // set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, right_duty_cycle);
-
-    
-
-      ESP_LOGI("debug", "KP: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd ,  read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2);
-          
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-    
+      
+    ESP_LOGI("debug", "KP2: %f ::  KI2: %f  :: KD2: %f :: Setpoint: %0.2f :: Roll: %0.2f | Pitch: %0.2f | PitchError: %0.2f", read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, read_pid_const2().setpoint, euler_angle[0], euler_angle[1], pitch_error);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
         vTaskDelete(NULL);
 }
