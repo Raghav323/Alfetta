@@ -13,8 +13,10 @@
 #define MAX_PITCH_CORRECTION (90.0f)
 #define MAX_PITCH_AREA (850.0f)
 #define MAX_PITCH_RATE (850.0f)
-#define MAX_PWM (100.0f)
+#define MAX_PWM (65.0f)
 #define MIN_PWM (60.0f)
+
+//new bot balancing pwm 60 65 kp ki kd 3 0 3 setpoint 20  
 
 
 /*self- kp ki kd = 5 0 1 ; 
@@ -26,14 +28,15 @@ float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
 bool run = 1 ;
-int optimum_duty_cycle = 50;
-int lower_duty_cycle = 37;
-int higher_duty_cycle = 63;
+int optimum_duty_cycle = 63;
+int lower_duty_cycle = 50;
+int higher_duty_cycle = 76;
 float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3,1,-1,-3};
 
 float error=0, prev_error=0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
+int counter=0;
 //line follow yaw
 
 void lsa_to_bar()
@@ -170,14 +173,19 @@ void self_and_line(void* arg)
   enable_mpu6050();
   enable_motor_driver(a, NORMAL_MODE);
 
-  while(true){
-        read_mpu6050(euler_angle, mpu_offset);
-        pitch_cmd = read_pid_const2().setpoint;
 
-		pitch_angle = euler_angle[1];
-		pitch_error = pitch_cmd - pitch_angle;
+  while(true){
+        
+       
+           
+        
+        read_mpu6050(euler_angle, mpu_offset);
+           pitch_cmd = read_pid_const2().setpoint;
+           pitch_angle = euler_angle[1];
+           pitch_error = pitch_cmd - pitch_angle;
 
 		calculate_motor_command(pitch_error, &motor_cmd);
+     
 
 
 		motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
@@ -188,6 +196,7 @@ void self_and_line(void* arg)
 					
 					set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
 					set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
+                    counter=0;
 				}
 
 			
@@ -197,31 +206,69 @@ void self_and_line(void* arg)
 					set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
 					
 					set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
+                    counter=0;
 				}
 
-				// Bot remains in desired region for vertical balance
-				else
-				{
-					// YAHA SPEED DUNGA  like set motor speed forward something...... jab tak good enough balance and move na hote rhe
-                    
-				}
-
-              
+				
+				else {
+            
+            counter++;
+            set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
+				
+			set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
      
-           
+        //   //  set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, 60);
+					
+		// 	//set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, 60);
+               
+                
+     if(counter>100 ){      // 100 counts= 1 seconds roughly
+     read_mpu6050(euler_angle, mpu_offset);
+      pitch_angle = euler_angle[1];
+      pitch_error = pitch_cmd - pitch_angle;
+     calculate_motor_command(pitch_error, &motor_cmd);
         
-    
+  ESP_LOGI("debug", "Checking1: %f ", read_pid_const2().kp2);
+         if(motor_cmd<30){
+             ESP_LOGI("debug", "Checking2: %f ", read_pid_const2().kp2);
+                         run=1;
+                         while(run){
+                            ESP_LOGI("debug", "Checking3: %f ", read_pid_const2().kp2);
+                   set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, 65);
+					
+			       set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, 65);
+
+                      read_mpu6050(euler_angle, mpu_offset);
+                      pitch_angle = euler_angle[1];
+                      pitch_error = pitch_cmd - pitch_angle;
+                      calculate_motor_command(pitch_error, &motor_cmd);
+                      ESP_LOGI("debug", "Checking4: %f ", read_pid_const2().kp2);
+
+
+
+                       if(pitch_error>15 || pitch_error<-15){
+                        run=0;
+                           ESP_LOGI("debug", "Checking5: %f ", read_pid_const2().kp2);
+                       }
+
+
+
+
+                         }
+         }
+         counter=0;
+                }
+        
+				
+                }
       
     ESP_LOGI("debug", "KP2: %f ::  KI2: %f  :: KD2: %f :: Setpoint: %0.2f :: Roll: %0.2f | Pitch: %0.2f | PitchError: %0.2f", read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, read_pid_const2().setpoint, euler_angle[0], euler_angle[1], pitch_error);
-    vTaskDelay(10 / portTICK_PERIOD_MS);
+   
+     
+     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
         vTaskDelete(NULL);
 }
-
-
-
-
-
 
 
 void app_main()
@@ -229,8 +276,5 @@ void app_main()
     xTaskCreate(&self_and_line, "self_and_line", 4096, NULL, 1, NULL);
     start_tuning_http_server();
 }
-
-
-
 
 
