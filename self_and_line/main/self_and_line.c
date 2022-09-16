@@ -213,42 +213,41 @@ void self_and_line(void* arg)
 				else {
             
             counter++;
-            set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
+           // set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
 				
-			set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
-     
-        //   //  set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, 60);
-					
-		// 	//set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, 60);
-               
+			//set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
+   
                 
-     if(counter>50 ){      // 100 counts= 1 seconds roughly
+     if(counter>10 ){      // 100 counts= 1000  milliseconds roughly ......................
+
      read_mpu6050(euler_angle, mpu_offset);
       pitch_angle = euler_angle[1];
       pitch_error = pitch_cmd - pitch_angle;
      calculate_motor_command(pitch_error, &motor_cmd);
+
         
-  ESP_LOGI("debug", "Checking1: %f ", read_pid_const2().kp2);
+  
          if(motor_cmd<30){
-             ESP_LOGI("debug", "Checking2: %f ", read_pid_const2().kp2);
+       
                          run=1;
                          while(run){
-                            ESP_LOGI("debug", "Checking3: %f ", read_pid_const2().kp2);
-                   set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, 65);
+
+                            
+                   set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, 61);
 					
-			       set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, 65);
+			       set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, 61);
 
                       read_mpu6050(euler_angle, mpu_offset);
                       pitch_angle = euler_angle[1];
                       pitch_error = pitch_cmd - pitch_angle;
                       calculate_motor_command(pitch_error, &motor_cmd);
-                      ESP_LOGI("debug", "Checking4: %f ", read_pid_const2().kp2);
+                      
 
 
 
-                       if(pitch_error>15 || pitch_error<-15){
+                       if(pitch_error>4 || pitch_error<-4){
                         run=0;
-                           ESP_LOGI("debug", "Checking5: %f ", read_pid_const2().kp2);
+                      
                        }
 
 
