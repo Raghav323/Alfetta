@@ -222,7 +222,7 @@ void self_and_line(void* arg)
 		// 	//set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, 60);
                
                 
-     if(counter>100 ){      // 100 counts= 1 seconds roughly
+     if(counter>50 ){      // 100 counts= 1 seconds roughly
      read_mpu6050(euler_angle, mpu_offset);
       pitch_angle = euler_angle[1];
       pitch_error = pitch_cmd - pitch_angle;
