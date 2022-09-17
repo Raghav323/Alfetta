@@ -16,7 +16,8 @@
 #define MAX_PWM (65.0f)
 #define MIN_PWM (60.0f)
 
-//new bot balancing pwm 60 65 kp ki kd 3 0 3 setpoint 20  
+//new bot balancing pwm 60 65 kp ki kd 3 0 3 setpoint 20  with task delay
+// 60 65 kp ki kd 3 0 3 setpoint 16  without task delay
 
 
 /*self- kp ki kd = 5 0 1 ; 
@@ -33,10 +34,11 @@ int lower_duty_cycle = 50;
 int higher_duty_cycle = 76;
 float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3,1,-1,-3};
+float forward_pwm = 0;
 
 float error=0, prev_error=0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
-int counter=0;
+
 //line follow yaw
 
 void lsa_to_bar()
@@ -196,7 +198,7 @@ void self_and_line(void* arg)
 					
 					set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
 					set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
-                    counter=0;
+                   
 				}
 
 			
@@ -206,20 +208,19 @@ void self_and_line(void* arg)
 					set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
 					
 					set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
-                    counter=0;
+                   
 				}
 
 				
 				else {
             
-            counter++;
-           // set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
+          
+        //    set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
 				
-			//set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
+		// 	set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
    
                 
-     if(counter>10 ){      // 100 counts= 1000  milliseconds roughly ......................
-
+    
      read_mpu6050(euler_angle, mpu_offset);
       pitch_angle = euler_angle[1];
       pitch_error = pitch_cmd - pitch_angle;
@@ -227,22 +228,24 @@ void self_and_line(void* arg)
 
         
   
-         if(motor_cmd<30){
+         if(motor_cmd<20){
        
                          run=1;
                          while(run){
 
                             
-                   set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, 61);
-					
-			       set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, 61);
+                 
 
                       read_mpu6050(euler_angle, mpu_offset);
                       pitch_angle = euler_angle[1];
                       pitch_error = pitch_cmd - pitch_angle;
                       calculate_motor_command(pitch_error, &motor_cmd);
-                      
 
+                          forward_pwm=  (0.625 * pitch_angle) + 65.5;   // bounding 63 68
+                      
+                          set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, forward_pwm);
+					
+			              set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, forward_pwm);
 
 
                        if(pitch_error>4 || pitch_error<-4){
@@ -255,8 +258,8 @@ void self_and_line(void* arg)
 
                          }
          }
-         counter=0;
-                }
+      
+                
         
 				
                 }
@@ -264,7 +267,7 @@ void self_and_line(void* arg)
     ESP_LOGI("debug", "KP2: %f ::  KI2: %f  :: KD2: %f :: Setpoint: %0.2f :: Roll: %0.2f | Pitch: %0.2f | PitchError: %0.2f", read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, read_pid_const2().setpoint, euler_angle[0], euler_angle[1], pitch_error);
    
      
-     vTaskDelay(10 / portTICK_PERIOD_MS);
+    // vTaskDelay(10 / portTICK_PERIOD_MS);
   }
         vTaskDelete(NULL);
 }
