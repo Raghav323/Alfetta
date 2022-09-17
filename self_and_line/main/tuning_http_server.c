@@ -3,7 +3,7 @@
 static const char *TAG = "tuning_http_server";
 static char scratch[SCRATCH_BUFSIZE];
 static pid_const_t pid_constants = {.kp = 0.9, .ki = 0, .kd = 6.5, .val_changed = true};
-static pid_const2_t pid_constants2 = {.kp2 = 5.0, .ki2 = 0.0, .kd2 = 1.0, .setpoint = 6.0, .offset = 0.0, .val_changed = true}; //random values for now.
+static pid_const2_t pid_constants2 = {.kp2 = 3.0, .ki2 = 0.0, .kd2 = 3.0, .setpoint = 16, .offset = 0.0, .val_changed = true}; //random values for now.
 
 
 static void initialise_mdns(void)
@@ -156,7 +156,7 @@ static esp_err_t tuning_pid_post_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
     
-    if (!cJSON_HasObjectItem(root, "kp") || !cJSON_HasObjectItem(root, "ki") || !cJSON_HasObjectItem(root, "kd") || !cJSON_HasObjectItem(root, "kp2") || !cJSON_HasObjectItem(root, "ki2") || !cJSON_HasObjectItem(root, "kd2") )
+    if (!cJSON_HasObjectItem(root, "kp") || !cJSON_HasObjectItem(root, "ki") || !cJSON_HasObjectItem(root, "kd") || !cJSON_HasObjectItem(root, "kp2") || !cJSON_HasObjectItem(root, "ki2") || !cJSON_HasObjectItem(root, "kd2") || !cJSON_HasObjectItem(root, "setpoint")  )
     {
         ESP_LOGE(TAG, "invalid json response");
         return ESP_FAIL;
@@ -169,6 +169,7 @@ static esp_err_t tuning_pid_post_handler(httpd_req_t *req)
     pid_constants2.kp2 = (float)cJSON_GetObjectItem(root, "kp2")->valuedouble;
     pid_constants2.ki2 = (float)cJSON_GetObjectItem(root, "ki2")->valuedouble;
     pid_constants2.kd2 = (float)cJSON_GetObjectItem(root, "kd2")->valuedouble;
+    pid_constants2.setpoint = (float)cJSON_GetObjectItem(root, "setpoint")->valuedouble;
 
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
