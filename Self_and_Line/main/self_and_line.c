@@ -13,24 +13,34 @@
 #define MAX_PITCH_CORRECTION (90.0f)
 #define MAX_PITCH_AREA (850.0f)
 #define MAX_PITCH_RATE (850.0f)
-#define MAX_PWM (90.0f)
+#define MAX_PWM (80.0f)
 #define MIN_PWM (60.0f)
 
+//new bot balancing pwm 60 65 kp ki kd 3 0 3 setpoint 20  with task delay
+// 60 65 kp ki kd 3 0 3 setpoint 16  without task delay
+
+
+/*self- kp ki kd = 5 0 1 ; 
+line-  kp ki kd=   0.9 0 6.5;
+*/
 
 /* Self Balancing Tuning Parameters
 float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
-bool run = 0;
+bool run = 1 ;
 int optimum_duty_cycle = 63;
 int lower_duty_cycle = 50;
 int higher_duty_cycle = 76;
 float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3,1,-1,-3};
+float forward_pwm = 0;
 
 float error=0, prev_error=0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
+
 //line follow yaw
+
 void lsa_to_bar()
 {   
     uint8_t var = 0x00;                     
@@ -41,7 +51,7 @@ void lsa_to_bar()
         var = bool_to_uint8(number);  //A helper function to convert bool array to unsigned int.
         ESP_ERROR_CHECK(set_bar_graph(var)); //Setting bar graph led with unsigned int value.
     }
-}
+}              
 
 void calculate_correction()
 {
@@ -138,110 +148,101 @@ void self_and_line(void* arg)
        IF (CONDITION NOT BALANCED){
             while (true){
                     self_balacing code*
-
-
                   if (CONDITION BALANCED) {
                     exit                           ....may use task handle fn if needed , then self balance code* fn outside
                   }
             }
             }
-
        Line fllw code
-
               }
            vTaskDelete(NULL);
        }
 */
-               
+    
 	float euler_angle[2], mpu_offset[2] = {0.0f, 0.0f};
 
 	float pitch_angle, pitch_error;
 
+	
 	float motor_cmd, motor_pwm = 0.0f;
 
+	float range=0.0f;
+    float max_pitch_angle=0.0f;
+    float min_pitch_angle=0.0f;
+    float max_pwm_bal=0.0f;
+    float min_pwm_bal=0.0f;
+    float power =0.0f;
 	float pitch_cmd = 0.0f;
-   enable_mpu6050() ;
-   enable_motor_driver(a, NORMAL_MODE);
+    float sdashn=0.0f;
+    float qdashn=0.0f;
+  enable_mpu6050();
+  enable_motor_driver(a, NORMAL_MODE);
+
+
   while(true){
-    
         
-                    
-        #ifdef CONFIG_ENABLE_OLED
-	// Declaring the required OLED struct
-    u8g2_t oled_config;
+       
+           
+        
+        read_mpu6050(euler_angle, mpu_offset);
+           pitch_cmd = read_pid_const2().setpoint;
+           range = read_pid_const2().range;
+            power=read_pid_const2().power;
+            max_pwm_bal=read_pid_const2().max_balanced_pwm;
+             min_pwm_bal=read_pid_const2().min_balanced_pwm;
 
-    // Initialising the OLED
-    ESP_ERROR_CHECK(init_oled(&oled_config));
-#endif
+           
+           pitch_angle = euler_angle[1];
+           pitch_error = pitch_cmd - pitch_angle;
+
+		calculate_motor_command(pitch_error, &motor_cmd);
+     
 
 
-         read_mpu6050(euler_angle, mpu_offset);   	
-	    if (euler_angle[1]<-20 || euler_angle[1]>0){
-            run=1;
-        }
-		
-		while (run)
-		{
-			read_mpu6050(euler_angle, mpu_offset);
+		motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
+
 				
-				pitch_cmd = read_pid_const2().setpoint;
-				pitch_angle = euler_angle[1];
-				pitch_error = pitch_cmd - pitch_angle;
-
-				calculate_motor_command(pitch_error, &motor_cmd);
-             	motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
-
 				if (pitch_error > 1)
 				{
 					
 					set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
 					set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
-                  
+                    printf("%f",motor_pwm);
+                   
 				}
 
-				
+			
 				else if (pitch_error < -1)
 				{
+					printf("%f",motor_pwm);
+					set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm-10*correction);
 					
-					set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
-					set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
+					set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm+10*correction);
                    
 				}
 
 				
-			
-
+				else {
+            
+          
+        //    set_motor_speed(MOTOR_A_0, MOTOR_STOP, 0);
 				
-            #ifdef CONFIG_ENABLE_OLED
-				// Diplaying kp, ki, kd values on OLED
-				if (read_pid_const().val_changed)
-				{
-					display_pid_values(read_pid_const().kp, read_pid_const().ki, read_pid_const().kd, &oled_config);
-					reset_val_changed_pid_const();
-				}
-#endif		
-				
-               vTaskDelay(10 / portTICK_PERIOD_MS);
-                  	
-	    if (euler_angle[1]>-20 && euler_angle[1]<0){
-            
-            run=0;
-        }
+		// 	set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
+   
+                
+    
+     read_mpu6050(euler_angle, mpu_offset);
+      pitch_angle = euler_angle[1];
+      pitch_error = pitch_cmd - pitch_angle;
+     calculate_motor_command(pitch_error, &motor_cmd);
 
-           
-         
-	}
-
-            
-
-            
-            //line follw 
-             ESP_ERROR_CHECK(enable_motor_driver(a, NORMAL_MODE));
-             ESP_ERROR_CHECK(enable_line_sensor());
-             ESP_ERROR_CHECK(enable_bar_graph());
-
-        ESP_LOGI("debug", "KPdebuggeriiiiii: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd ,  read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2);
-        line_sensor_readings = read_line_sensor();
+        
+  
+         if(motor_cmd<20){
+       
+                         run=1;
+                         while(run){
+                    line_sensor_readings = read_line_sensor();
         for(int i = 0; i < 4; i++)
         {
             line_sensor_readings.adc_reading[i] = bound(line_sensor_readings.adc_reading[i], BLACK_MARGIN, WHITE_MARGIN);
@@ -252,44 +253,56 @@ void self_and_line(void* arg)
         calculate_correction();
         lsa_to_bar();
         
-        left_duty_cycle = bound((optimum_duty_cycle - correction), lower_duty_cycle, higher_duty_cycle);
-        right_duty_cycle = bound((optimum_duty_cycle + correction), lower_duty_cycle, higher_duty_cycle);
 
-        set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, left_duty_cycle);
-        set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, right_duty_cycle);
-        #ifdef CONFIG_ENABLE_OLED
-        // Diplaying kp, ki, kd values on OLED 
-        if (read_pid_const().val_changed)
-        {
-            display_pid_values(read_pid_const().kp, read_pid_const().ki, read_pid_const().kd, &oled_config);
-            reset_val_changed_pid_const();
-        }
-#endif
-    
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-    
+                            
+                    
+                    max_pitch_angle= pitch_cmd+range;
+                    min_pitch_angle= pitch_cmd-range;
+                    sdashn=pow(max_pitch_angle,power);
+                    qdashn=pow(min_pitch_angle,power);
+                   
+                    float m = (max_pwm_bal-min_pwm_bal)/(sdashn-qdashn);
+                    float c= (min_pwm_bal*sdashn-qdashn*max_pwm_bal)/(sdashn-qdashn);
+                    printf("m= %f  c= %f",m,c);
+                      read_mpu6050(euler_angle, mpu_offset);
+                      pitch_angle = euler_angle[1];
+                      pitch_error = pitch_cmd - pitch_angle;
+                      calculate_motor_command(pitch_error, &motor_cmd);
+                        printf("correction %f pwm %f",correction,forward_pwm);
+                          forward_pwm=  m*pow(pitch_angle,power)+c;   // bounding 63 68
+                      
+                          set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm-10*correction);
+					
+			              set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm+10*correction);
 
-      ESP_LOGI("debug", "KP: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd ,  read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2);
-      run=1;
+
+                       if(pitch_error>range || pitch_error<-range){
+                        run=0;
+                      
+                       }
+
+
+
+
+                         }
+         }
+      
+                
+        
+				
+                }
+      
+    //ESP_LOGI("debug", "KP2: %f ::  KI2: %f  :: KD2: %f :: Setpoint: %0.2f :: Roll: %0.2f | Pitch: %0.2f | PitchError: %0.2f", read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, read_pid_const2().setpoint, euler_angle[0], euler_angle[1], pitch_error);
+   
+     
+    // vTaskDelay(10 / portTICK_PERIOD_MS);
   }
         vTaskDelete(NULL);
-
-
 }
-
-
-
-
-
-
 
 
 void app_main()
 {   
-    xTaskCreate(&self_and_line, "self_and_line", 100000, NULL, 10000, NULL);
+    xTaskCreate(&self_and_line, "self_and_line", 4096, NULL, 1, NULL);
     start_tuning_http_server();
 }
-
-
-
-
