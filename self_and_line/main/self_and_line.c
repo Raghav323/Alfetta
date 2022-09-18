@@ -17,7 +17,8 @@
 #define MIN_PWM (60.0f)
 
 //new bot balancing pwm 60 65 kp ki kd 3 0 3 setpoint 20  with task delay
-// 60 65 kp ki kd 3 0 3 setpoint 16  without task delay
+// 60 65 kp ki kd 3 0 3 setpoint 16  without task delay for balance and forward
+// kp ki kd kp2 ki2 kd2 sp current for self and line= 2 0 8 1.5 0 3 22
 
 
 /*self- kp ki kd = 5 0 1 ; 
@@ -35,7 +36,8 @@ int higher_duty_cycle = 76;
 float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3,1,-1,-3};
 float forward_pwm = 0;
-
+float hlp = 0;
+float llp= 0;
 float error=0, prev_error=0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
 
@@ -47,27 +49,27 @@ void lsa_to_bar()
     bool number[8] = {0,0,0,0,0,0,0,0};
     for(int i = 0; i < 4; i++)
     {
-        number[7-i] = (line_sensor_readings.adc_reading[i] < BLACK_MARGIN) ? 0 : 1; //If adc value is less than black margin, then set that bit to 0 otherwise 1. 
-        var = bool_to_uint8(number);  //A helper function to convert bool array to unsigned int.
-        ESP_ERROR_CHECK(set_bar_graph(var)); //Setting bar graph led with unsigned int value.
+        number[7-i] = (line_sensor_readings.adc_reading[i] < BLACK_MARGIN) ? 0 : 1; 
+        var = bool_to_uint8(number);  
+        ESP_ERROR_CHECK(set_bar_graph(var)); 
     }
 }              
 
 void calculate_correction()
 {
-    error = error*10;  // we need the error correction in range 0-100 so that we can send it directly as duty cycle paramete
+    error = error*10;
     difference = error - prev_error;
     cumulative_error += error;
 
     cumulative_error = bound(cumulative_error, -30, 30);
 
-    correction = read_pid_const().kp*error + read_pid_const().ki*cumulative_error + read_pid_const().kd*difference;           //yaw kp ki kd
+    correction = read_pid_const().kp*error + read_pid_const().ki*cumulative_error + read_pid_const().kd*difference;           
     prev_error = error;
 }
 
 void calculate_error()
 {
-    int all_black_flag = 1; // assuming initially all black condition
+    int all_black_flag = 1;
     float weighted_sum = 0, sum = 0; 
     float pos = 0;
     
@@ -81,12 +83,12 @@ void calculate_error()
         sum = sum + line_sensor_readings.adc_reading[i];
     }
 
-    if(sum != 0) // sum can never be 0 but just for safety purposes
+    if(sum != 0)
     {
-        pos = weighted_sum / sum; // This will give us the position wrt line. if +ve then bot is facing left and if -ve the bot is facing to right.
+        pos = weighted_sum / sum;
     }
 
-    if(all_black_flag == 1)  // If all black then we check for previous error to assign current error.
+    if(all_black_flag == 1) 
     {
         if(prev_error > 0)
         {
@@ -240,8 +242,10 @@ void self_and_line(void* arg)
                       pitch_angle = euler_angle[1];
                       pitch_error = pitch_cmd - pitch_angle;
                       calculate_motor_command(pitch_error, &motor_cmd);
+                      llp=64;                                                                  // llp = lower linefllw pwm
+                      hlp=68;                                                                  // hlp = higher linefllw pwm                                                                   
 
-                          forward_pwm=  (0.625 * pitch_angle) + 55.5;   // bounding 63 68 
+                          forward_pwm=  (hlp-llp)*(pitch_angle/6) + hlp - (read_pid_const2().setpoint + 4)*(hlp - llp)/6 ;                   // change the equation only when exit loop is changed .
                       
                         //  set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, forward_pwm);
 					
@@ -271,7 +275,7 @@ void self_and_line(void* arg)
 
                        
 
-                       if(pitch_error>4 || pitch_error<-4){
+                       if(pitch_error>2 || pitch_error<-4){                         //exit loop
                         run=0;
                       
                        }
