@@ -20,8 +20,11 @@
 // 60 65 kp ki kd 3 0 3 setpoint 16  without task delay
 
 
-/*self- kp ki kd = 5 0 1 ; 
-line-  kp ki kd=   0.9 0 6.5;
+/*line- kp ki kd = 6 0 1.05; 
+self-  kp ki kd=   9 0 6.5;
+stpt=7.2
+x=1 y=-4
+llp 61.125 hlp 66.125
 */
 
 /* Self Balancing Tuning Parameters
@@ -30,8 +33,8 @@ float forward_buffer = 3.1f;
 */
 bool run = 1 ;
 int optimum_duty_cycle = 63;
-int lower_duty_cycle = 50;
-int higher_duty_cycle = 76;
+int lower_duty_cycle = 60; //50
+int higher_duty_cycle = 65; //76
 float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3,1,-1,-3};
 float forward_pwm = 0;
@@ -211,14 +214,14 @@ float right_combined_cycle=0.0f;
 
 
 		//motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
-        left_combined_cycle=bound(motor_cmd-correction,MIN_PWM,MAX_PWM);
+       left_combined_cycle=bound(motor_cmd-correction,MIN_PWM,MAX_PWM);
         right_combined_cycle=bound(motor_cmd+correction,MIN_PWM,MAX_PWM);
 				
 				if (pitch_error > 1)
 				{
 					
 					set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, right_combined_cycle);
-                    printf("%f correction",correction);
+                   // printf("%f correction",correction);
 					set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, left_combined_cycle);
                    
 				}
@@ -250,7 +253,7 @@ float right_combined_cycle=0.0f;
 
         
   
-         if(motor_cmd<30){
+         if(motor_cmd<60){
        
                          run=1;
                          while(run){
@@ -261,12 +264,12 @@ float right_combined_cycle=0.0f;
                       pitch_angle = euler_angle[1];
                       pitch_error = pitch_cmd - pitch_angle;
                       calculate_motor_command(pitch_error, &motor_cmd);
-                        llp=61.125;
-                        hlp=66.125;
-                        x=4;
-                        y=-4;
+                        llp=read_pid_const2().llp; //61.125
+                        hlp=read_pid_const2().hlp; //66.125
+                        x=read_pid_const2().x;//read_pid_const2().max_balanced_pwm;
+                        y=read_pid_const2().y ;//read_pid_const2().min_balanced_pwm;
                          
-                          forward_pwm=  (hlp-llp)*pitch_angle/(x-y) + hlp - (hlp-llp)*(read_pid_const2().setpoint - y)/(x-y);
+                          //forward_pwm=  (hlp-llp)*pitch_angle/(x-y) + hlp - (hlp-llp)*(read_pid_const2().setpoint - y)/(x-y);
                       
                         //  set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, forward_pwm);
 					
