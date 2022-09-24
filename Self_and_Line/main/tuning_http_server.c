@@ -2,9 +2,8 @@
 
 static const char *TAG = "tuning_http_server";
 static char scratch[SCRATCH_BUFSIZE];
-static pid_const_t pid_constants = {.kp = 0.9, .ki = 0, .kd = 6.5, .val_changed = true};
-static pid_const2_t pid_constants2 = {.kp2 = 5.0, .ki2 = 0.0, .kd2 = 1.0, .setpoint = 6.0, .offset = 0.0, .val_changed = true}; //random values for now.
-
+static pid_const_t pid_constants = {.kp = 5.05, .ki = 0, .kd = 1.05, .val_changed = true};
+static pid_const2_t pid_constants2 = {.kp2 = 5, .ki2 = 0.0, .kd2 = 0.95, .setpoint = 13, .offset = 0.0,.x=4,.y=-2,.llp=64,.hlp=68 ,.val_changed = true}; //random values for now.
 
 static void initialise_mdns(void)
 {
@@ -169,6 +168,12 @@ static esp_err_t tuning_pid_post_handler(httpd_req_t *req)
     pid_constants2.kp2 = (float)cJSON_GetObjectItem(root, "kp2")->valuedouble;
     pid_constants2.ki2 = (float)cJSON_GetObjectItem(root, "ki2")->valuedouble;
     pid_constants2.kd2 = (float)cJSON_GetObjectItem(root, "kd2")->valuedouble;
+    pid_constants2.setpoint = (float)cJSON_GetObjectItem(root, "setpoint")->valuedouble;
+    pid_constants2.x = (float)cJSON_GetObjectItem(root, "x")->valuedouble;
+    pid_constants2.y= (float)cJSON_GetObjectItem(root, "y")->valuedouble;
+      pid_constants2.llp = (float)cJSON_GetObjectItem(root, "llp")->valuedouble;
+    pid_constants2.hlp= (float)cJSON_GetObjectItem(root, "hlp")->valuedouble;
+
 
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
