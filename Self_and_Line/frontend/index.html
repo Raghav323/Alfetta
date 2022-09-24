@@ -121,28 +121,29 @@
 				<input type="number" value="0.000" id="setpoint" />
 				<button>&gt;</button>
 			</div>
+		]
 			<div class="button-group">
-				<h3>range</h3>
+				<h3>x</h3>
 				<button>&lt;</button>
-				<input type="number" value="0.000" id="range" />
+				<input type="number" value="0.000" id="x" />
 				<button>&gt;</button>
 			</div>
 			<div class="button-group">
-				<h3>max_balanced_pwm</h3>
+				<h3>y</h3>
 				<button>&lt;</button>
-				<input type="number" value="0.000" id="max_balanced_pwm" />
+				<input type="number" value="0.000" id="y" />
 				<button>&gt;</button>
 			</div>
 			<div class="button-group">
-				<h3>min_balanced_pwm</h3>
+				<h3>llp</h3>
 				<button>&lt;</button>
-				<input type="number" value="0.000" id="min_balanced_pwm" />
+				<input type="number" value="0.000" id="llp" />
 				<button>&gt;</button>
 			</div>
 			<div class="button-group">
-				<h3>power</h3>
+				<h3>hlp</h3>
 				<button>&lt;</button>
-				<input type="number" value="0.000" id="power" />
+				<input type="number" value="0.000" id="hlp" />
 				<button>&gt;</button>
 			</div>
 		</main>
@@ -157,10 +158,11 @@
 				data["ki2"] = parseFloat(document.getElementById("ki2").value);
 				data["kd2"] = parseFloat(document.getElementById("kd2").value);
 				data["setpoint"] = parseFloat(document.getElementById("setpoint").value);
-				data["range"] = parseFloat(document.getElementById("range").value);
-				data["max_balanced_pwm"] = parseFloat(document.getElementById("max_balanced_pwm").value);
-				data["min_balanced_pwm"] = parseFloat(document.getElementById("min_balanced_pwm").value);
-				data["power"] = parseFloat(document.getElementById("power").value);
+				data["x"] = parseFloat(document.getElementById("x").value);
+				data["y"] = parseFloat(document.getElementById("y").value);
+				data["llp"] = parseFloat(document.getElementById("llp").value);
+				data["hlp"] = parseFloat(document.getElementById("hlp").value);
+			
 				let finaldata = JSON.stringify(data);
 				console.log(finaldata);
 
