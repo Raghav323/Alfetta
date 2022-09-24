@@ -43,6 +43,11 @@ typedef struct pid_const2
     float kd2;
     float setpoint;
     float offset;
+  
+    float x;
+    float y;
+    float llp;
+    float hlp;
     bool val_changed;
 } pid_const2_t;
 
