@@ -37,3 +37,55 @@ This section contains the technologies we used for this project.
 * FreeRTOS
 * ESP32 
 
+
+## File Structure 
+    ├── Documentation                  # Folder containing pngs explaining the project 
+    ├── components                   # SRA components folder         
+    ├── self_and_line                   # Source code files
+        ├── build
+        ├── frontend
+          ├── index.html
+        ├── main 
+          ├── include 
+            ├── tuning_http_server.h
+            ├── wifi_handler.h
+          ├──CmakeLists.txt
+          ├──component.mk
+          ├──Kconfig
+          ├──self_and_line.c
+          ├──tuning_http_server.c
+          ├──wifi_handler.c
+        ├── CmakeLists.txt
+        ├──parititon_table.csv
+        ├── sdkconfig
+        ├── sdkconfig.defaults
+        ├── sdkconfig.old
+        ├── sdkconfigs
+        ├── sdkconfigw  
+    ├── LICENSE                  # MIT license
+    ├── README.md                # readme.md
+# Getting Started 
+
+## Prerequisites
+To download and use this code, the minimum requirements are:
+
+* [ESP_IDF]()
+* [FreeRTOS](https://www.freertos.org/a00104.html)
+* [SRA_Components](https://github.com/SRA-VJTI/Wall-E/tree/master/components)
+* Windows 7 or later (64-bit), Ubuntu 20.04 or later
+* [Microsoft VS Code](https://code.visualstudio.com/download)
+
+## Installation
+Clone the repo
+
+` git clone https://github.com/Raghav323/Alfetta 
+
+## Usage
+Once the requirements are satisfied, you can easily download the project and use it on your machine.
+
+1) First navigate to the folder Alfetta 
+2) Navigate to Self_and_line folder using cd self_and_line
+3) Connect one end of the cable to your laptop and the other end to ESP32.
+5) Execute command idf.py build on terminal . 
+6) Execute command idf.py flash monitor on terminal .
+
