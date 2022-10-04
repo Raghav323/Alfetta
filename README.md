@@ -90,4 +90,4 @@ Once the requirements are satisfied, you can easily download the project and use
 6) Execute command idf.py flash monitor on terminal .
 
 ## Theory and Approach
-Refer [this](/notes/) for more info
+Refer [this](/NOTES/) for more info
