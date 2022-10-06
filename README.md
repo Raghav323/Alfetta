@@ -130,3 +130,8 @@ https://user-images.githubusercontent.com/111511248/194223248-77d15f45-b21e-482c
 - [ ] Adding Power Source to make bot work wirelessly
 - [ ] Improving Design of Robot for better self balancing
 
+## Contributors 
+
+* [Raghav Agarwal](https://github.com/Raghav323)
+* [Dhruv Sapra](https://github.com/Dhruv-Sapra)
+
