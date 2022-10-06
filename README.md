@@ -123,6 +123,9 @@ This is the final output of our project . The self balancing and line following 
 
 https://user-images.githubusercontent.com/111511248/194223248-77d15f45-b21e-482c-922c-cc45c4c83eca.mp4
 
+
+[This](https://drive.google.com/drive/folders/1Nv4fsep2QUW2RsTWzTHC5Mxa_L0N7mw3) drive contains our progress log for this project containing the videos of the working code at several stages of the project.
+
 ## Future Works
 * The following developments are yet to be achieved
 - [ ] Fine Tuning the PID for better results 
