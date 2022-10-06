@@ -69,25 +69,64 @@ This section contains the technologies we used for this project.
 ## Prerequisites
 To download and use this code, the minimum requirements are:
 
-* [ESP_IDF]()
+* [ESP_IDF](https://github.com/espressif/esp-idf)
 * [FreeRTOS](https://www.freertos.org/a00104.html)
 * [SRA_Components](https://github.com/SRA-VJTI/Wall-E/tree/master/components)
 * Windows 7 or later (64-bit), Ubuntu 20.04 or later
 * [Microsoft VS Code](https://code.visualstudio.com/download)
 
 ## Installation
-Clone the repo
+Clone the project by typing the following command in your Terminal/CommandPrompt
 
-` git clone https://github.com/Raghav323/Alfetta 
+git clone https://github.com/Raghav323/Alfetta 
+
+cd Alfetta
 
 ## Usage
 Once the requirements are satisfied, you can easily download the project and use it on your machine.
+After following the above steps , use the following commands to:
 
-1) First navigate to the folder Alfetta 
-2) Navigate to Self_and_line folder using cd self_and_line
-3) Connect one end of the cable to your laptop and the other end to ESP32.
-5) Execute command idf.py build on terminal . 
-6) Execute command idf.py flash monitor on terminal .
+Build
+```
+idf.py build
+```
+Flash
+```
+idf.py -p (PORT) flash monitor
+```
+Configuration
+
+```
+idf.py menuconfig
+```
 
 ## Theory and Approach
-Refer [this](/NOTES/) for more info
+Refer [this](/NOTES/) for more info . 
+* The main motto of this project is to implement a **line following** and **self balancing robot** . 
+* We use **ESP-IDFs** (Espressif's official IoT Development Framework) **ESP32** as the main microcontroller for this task . 
+* **MPU6050** is a Micro Electro-mechanical system (MEMS), it consists of three-axis accelerometer and three-axis gyroscope. It helps us to measure velocity, orientation, acceleration, displacement and other motion like features. This provides us with critical info that is required for balancing .
+* **Line sensors** detect the presence of a black line by emitting infrared (IR) light and detecting the light levels that return to the sensor. We use 4 line sensor arrays to detect turns and move using PID accordingly by subtracting and adding line following correction to motors . 
+* For implementing both self balancing and line following , we use **2 PIDs** , one gives us the required duty cycle for balancing , the other gives us correction by which a motor should be accelerated and the other should be decelerated to follow the line .Positive correction implies that the right motor should be accelerating (bot should move left) that is bot is towards right of line while negative correction means left motor should be accelerating (bot should move right). 
+* After getting these corrections , we make some decisions using conditional if-else statements . 
+* Our first decision is to see if the pitch error that is (setpoint - pitch_angle) is positive or negative . If it is positive means our bot is above the desired position for self balancing and we move it backwards so that it tilts forward by pseduo forces. If it is negative means our bot is below the desired position for self balancing and we move it forwards so that it tilts backward by pseudo forces . The negative pitch error state is the desired state as ideally we want our bot to only move forwards for line following . 
+* Now coming to the speed with which we move it backwards and forwards . 
+
+```
+left_duty_cycle = self_balancing_correction - line_correction 
+right_duty_cycle= self_balancing_correction + line_correction
+```
+
+* While moving it backwards , we want it to move in such a way that it is still facing the line and also getting enough pwm for balancing . We do this by providing the right motor pwm to left motor and vice-versa . While moving it forwards , we provide the normal left and right duty cycles as mentioned above 
+
+## Results and Demo
+This is the final output of our project . The self balancing and line following algorithm is still not perfect . The bot still touches the ground at occasions which is not ideal for a self balancing bot . 
+
+https://user-images.githubusercontent.com/111511248/194223248-77d15f45-b21e-482c-922c-cc45c4c83eca.mp4
+
+## Future Work
+* The following developments are yet to be achieved
+- [ ] Fine Tuning the PID for better results 
+- [ ] Improving the Self-Balancing and Line-Following Algorithm 
+- [ ] Adding Power Source to make bot work wirelessly
+- [ ] Improving Design of Robot for better self balancing
+
