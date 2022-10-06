@@ -123,7 +123,7 @@ This is the final output of our project . The self balancing and line following 
 
 https://user-images.githubusercontent.com/111511248/194223248-77d15f45-b21e-482c-922c-cc45c4c83eca.mp4
 
-## Future Work
+## Future Works
 * The following developments are yet to be achieved
 - [ ] Fine Tuning the PID for better results 
 - [ ] Improving the Self-Balancing and Line-Following Algorithm 
@@ -135,3 +135,8 @@ https://user-images.githubusercontent.com/111511248/194223248-77d15f45-b21e-482c
 * [Raghav Agarwal](https://github.com/Raghav323)
 * [Dhruv Sapra](https://github.com/Dhruv-Sapra)
 
+# Acknowledgements and Resources
+* [SRA VJTI](https://www.sravjti.in/) Eklavya 2021  
+* Referred [this](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/) for ESP32 API
+* Referred [this](https://www.google.com/search?channel=fs&client=ubuntu&q=PID+without+a+PHD) for understanding PID.
+* Special Thanks to our awesome mentor [Mateen Shah](https://github.com/Jamm02) who always helped us during our project journey.
