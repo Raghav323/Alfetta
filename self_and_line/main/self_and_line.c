@@ -16,35 +16,41 @@
 #define MAX_PWM (65.0f)
 #define MIN_PWM (60.0f)
 
-// new bot balancing pwm 60 65 kp ki kd 3 0 3 setpoint 20  with task delay
-//  60 65 kp ki kd 3 0 3 setpoint 16  without task delay for balance and forward
-//  kp ki kd kp2 ki2 kd2 sp current for self and line= 2 0 8 1.5 0 3 22
 
-/*self- kp ki kd = 5 0 1 ;
-line-  kp ki kd=   0.9 0 6.5;
-*/
 
 /* Self Balancing Tuning Parameters
 float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
-bool run = 1; // to enter line following code after self balancing
-// int optimum_duty_cycle = 63;
-int lower_duty_cycle = 50;
-int higher_duty_cycle = 76;
-float left_duty_cycle = 0, right_duty_cycle = 0; // duty cycle give to bot when it is inside linefllw code i.e line following and balancing together
+bool run = 1;
+int optimum_duty_cycle = 63;
+int lower_duty_cycle = 60;  // 50
+int higher_duty_cycle = 80; // 76
+float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3, 1, -1, -3};
-float forward_pwm = 0.0f;
-float left_combined_cycle = 0.0f; // duty cycle given when bot is pure self balancing with correction value of linefllw code added
-float right_combined_cycle = 0.0f;
-float hlp = 0; // higher line following  pwm , used as upper limit of pwm for line following code
-float llp = 0; // lower line following  pwm , used as lower limit of pwm for line following code
-float x = 0;   // exit pitch angles for switching back to pure self balancing
+float forward_pwm = 0;
+float hlp = 0;
+float llp = 0;
+float x = 0;
 float y = 0;
+
 float error = 0, prev_error = 0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
+/* 2 0 8 1.5 0 3 10 0.1 -0.1 67 67
+minmax pwm 60 65
+lowerhigherduty 60 80
+purebalancingpart motor pwm
+mixpart fwdpwm+correction
+*/
 
-// line follow yaw
+/* 2 0 8 1.5 0 3 10 0.1 -0.1 67 67
+minmax pwm 60 65
+lowerhigherduty 60 80
+purebalancingpart motor pwm
+mixpart motorpwm+correction
+not that great cuz when good balance then it enters mixedpart where motorpwm is very less
+*/
+
 
 void lsa_to_bar()
 {
@@ -52,27 +58,27 @@ void lsa_to_bar()
     bool number[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     for (int i = 0; i < 4; i++)
     {
-        number[7 - i] = (line_sensor_readings.adc_reading[i] < BLACK_MARGIN) ? 0 : 1;
-        var = bool_to_uint8(number);
-        ESP_ERROR_CHECK(set_bar_graph(var));
+        number[7 - i] = (line_sensor_readings.adc_reading[i] < BLACK_MARGIN) ? 0 : 1; // If adc value is less than black margin, then set that bit to 0 otherwise 1.
+        var = bool_to_uint8(number);                                                  // A helper function to convert bool array to unsigned int.
+        ESP_ERROR_CHECK(set_bar_graph(var));                                          // Setting bar graph led with unsigned int value.
     }
 }
 
 void calculate_correction()
 {
-    error = error * 10;
+    error = error * 10; // we need the error correction in range 0-100 so that we can send it directly as duty cycle paramete
     difference = error - prev_error;
     cumulative_error += error;
 
     cumulative_error = bound(cumulative_error, -30, 30);
 
-    correction = read_pid_const().kp * error + read_pid_const().ki * cumulative_error + read_pid_const().kd * difference;
+    correction = read_pid_const().kp * error + read_pid_const().ki * cumulative_error + read_pid_const().kd * difference; // yaw kp ki kd
     prev_error = error;
 }
 
 void calculate_error()
 {
-    int all_black_flag = 1;
+    int all_black_flag = 1; // assuming initially all black condition
     float weighted_sum = 0, sum = 0;
     float pos = 0;
 
@@ -86,12 +92,12 @@ void calculate_error()
         sum = sum + line_sensor_readings.adc_reading[i];
     }
 
-    if (sum != 0)
+    if (sum != 0) // sum can never be 0 but just for safety purposes
     {
-        pos = weighted_sum / sum;
+        pos = weighted_sum / sum; // This will give us the position wrt line. if +ve then bot is facing left and if -ve the bot is facing to right.
     }
 
-    if (all_black_flag == 1)
+    if (all_black_flag == 1) // If all black then we check for previous error to assign current error.
     {
         if (prev_error > 0)
         {
@@ -144,6 +150,25 @@ void calculate_motor_command(const float pitch_error, float *motor_cmd)
 void self_and_line(void *arg)
 {
 
+    /*         Exp1
+                    main{
+              while(true){
+           checking for balance condition which checks if bot is within some range(has to be less* so stays inside loop for more time) of  offset angles.
+           if it is within range ignore the balance part
+           IF (CONDITION NOT BALANCED){
+                while (true){
+                        self_balacing code*
+                      if (CONDITION BALANCED) {
+                        exit                           ....may use task handle fn if needed , then self balance code* fn outside
+                      }
+                }
+                }
+           Line fllw code
+                  }
+               vTaskDelete(NULL);
+           }
+    */
+
     float euler_angle[2], mpu_offset[2] = {0.0f, 0.0f};
 
     float pitch_angle, pitch_error;
@@ -155,8 +180,10 @@ void self_and_line(void *arg)
     enable_motor_driver(a, NORMAL_MODE);
     enable_line_sensor();
     enable_bar_graph();
+    float left_combined_cycle = 0.0f;
+    float right_combined_cycle = 0.0f;
 
-    while (true)
+    while (1)
     {
 
         read_mpu6050(euler_angle, mpu_offset);
@@ -166,46 +193,38 @@ void self_and_line(void *arg)
 
         calculate_motor_command(pitch_error, &motor_cmd);
 
-        /*
-                   line_sensor_readings = read_line_sensor();
-                        for (int i = 0; i < 4; i++)
-                        {
-                            line_sensor_readings.adc_reading[i] = bound(line_sensor_readings.adc_reading[i], BLACK_MARGIN, WHITE_MARGIN);
-                            line_sensor_readings.adc_reading[i] = map(line_sensor_readings.adc_reading[i], BLACK_MARGIN, WHITE_MARGIN, bound_LSA_LOW, bound_LSA_HIGH);
-                        }
+        // line_sensor_readings = read_line_sensor();
+        // for (int i = 0; i < 4; i++)
+        // {
+        //     line_sensor_readings.adc_reading[i] = bound(line_sensor_readings.adc_reading[i], BLACK_MARGIN, WHITE_MARGIN);
+        //     line_sensor_readings.adc_reading[i] = map(line_sensor_readings.adc_reading[i], BLACK_MARGIN, WHITE_MARGIN, bound_LSA_LOW, bound_LSA_HIGH);
+        // }
 
-                        calculate_error();
-                        calculate_correction();
-                        lsa_to_bar();
+        // calculate_error();
+        // calculate_correction();
+        // lsa_to_bar();
 
-
-                left_combined_cycle=bound(motor_cmd-correction,MIN_PWM,MAX_PWM);
-                right_combined_cycle=bound(motor_cmd+correction,MIN_PWM,MAX_PWM);
-
-        */
+        //  left_duty_cycle = bound((optimum_duty_cycle - correction), lower_duty_cycle, higher_duty_cycle);
+        // right_duty_cycle = bound((optimum_duty_cycle + correction), lower_duty_cycle, higher_duty_cycle);
 
         motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
+        // left_combined_cycle = bound(motor_cmd - correction, MIN_PWM, MAX_PWM);
+        // right_combined_cycle = bound(motor_cmd + correction, MIN_PWM, MAX_PWM);
 
-        if (pitch_error > 1)
+        if (pitch_error > 0.5)
         {
 
             set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, motor_pwm);
-            set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
-
-            // set_motor_speed(MOTOR_A_0, MOTOR_BACKWARD, right_combined_cycle);
             // printf("%f correction",correction);
-            // set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, left_combined_cycle);
+            set_motor_speed(MOTOR_A_1, MOTOR_BACKWARD, motor_pwm);
         }
 
-        else if (pitch_error < -1)
+        else if (pitch_error < -0.5)
         {
 
             set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, motor_pwm);
+
             set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, motor_pwm);
-
-            // set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, left_combined_cycle);
-
-            // set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, right_combined_cycle);
         }
 
         else
@@ -215,25 +234,28 @@ void self_and_line(void *arg)
 
             // 	set_motor_speed(MOTOR_A_1, MOTOR_STOP, 0);
 
-            read_mpu6050(euler_angle, mpu_offset);
-            pitch_angle = euler_angle[1];
-            pitch_error = pitch_cmd - pitch_angle;
-            calculate_motor_command(pitch_error, &motor_cmd);
+            // read_mpu6050(euler_angle, mpu_offset);
+            // pitch_angle = euler_angle[1];
+            // pitch_error = pitch_cmd - pitch_angle;
+            // calculate_motor_command(pitch_error, &motor_cmd);
 
             run = 1;
             while (run)
             {
 
                 read_mpu6050(euler_angle, mpu_offset);
+                pitch_cmd = read_pid_const2().setpoint;
                 pitch_angle = euler_angle[1];
                 pitch_error = pitch_cmd - pitch_angle;
                 calculate_motor_command(pitch_error, &motor_cmd);
-                llp = 64; // lower line follow pwm
-                hlp = 68; // higher line follow pwm
-                x = 2;    // exit conditions - range of pitch angles
-                y = -4;
+                motor_pwm = bound((motor_cmd), MIN_PWM, MAX_PWM);
 
-                forward_pwm = (hlp - llp) * pitch_angle / (x - y) + hlp - (hlp - llp) * (read_pid_const2().setpoint - y) / (x - y); // distributes llp and hlp pwms between exit conditions
+                llp = read_pid_const2().llp; 
+                hlp = read_pid_const2().hlp; 
+                x = read_pid_const2().x;     
+                y = read_pid_const2().y;     
+
+                // forward_pwm=  (hlp-llp)*pitch_angle/(x-y) + hlp - (hlp-llp)*(read_pid_const2().setpoint - y)/(x-y);
 
                 //  set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, forward_pwm);
 
@@ -252,20 +274,22 @@ void self_and_line(void *arg)
 
                 //  left_duty_cycle = bound((optimum_duty_cycle - correction), lower_duty_cycle, higher_duty_cycle);
                 // right_duty_cycle = bound((optimum_duty_cycle + correction), lower_duty_cycle, higher_duty_cycle);
-                left_duty_cycle = bound((forward_pwm - correction), lower_duty_cycle, higher_duty_cycle);
-                right_duty_cycle = bound((forward_pwm + correction), lower_duty_cycle, higher_duty_cycle);
+                left_duty_cycle = bound((motor_pwm - correction), lower_duty_cycle, higher_duty_cycle); // forward pwm  replace with motorcmd
+                right_duty_cycle = bound((motor_pwm + correction), lower_duty_cycle, higher_duty_cycle);
 
                 set_motor_speed(MOTOR_A_0, MOTOR_FORWARD, left_duty_cycle);
                 set_motor_speed(MOTOR_A_1, MOTOR_FORWARD, right_duty_cycle);
 
                 if (pitch_error > x || pitch_error < y)
-                { // exit loop
+                {
                     run = 0;
                 }
             }
         }
 
         ESP_LOGI("debug", "KP: %f ::  KI: %f  :: KD: %f :: KP2: %f ::  KI2: %f  :: KD2: %f :: Setpoint: %0.2f  | Pitch: %0.2f | PitchError: %0.2f", read_pid_const().kp, read_pid_const().ki, read_pid_const().kd, read_pid_const2().kp2, read_pid_const2().ki2, read_pid_const2().kd2, read_pid_const2().setpoint, euler_angle[1], pitch_error);
+
+        // vTaskDelay(10 / portTICK_PERIOD_MS);
     }
     vTaskDelete(NULL);
 }
