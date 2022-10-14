@@ -1,0 +1,33 @@
+***Pwm + Motor Driver notes***
+
+PWM  is used to get analog results using digital means. Duration of on time is called pulse width
+
+Esp 32 has MCPWM (motor controlled) and LEDc PWM
+
+Esp 32  MCPWM can control 6 motors (2 mcpwm and 3 outputs each)
+NORMAL mode=  2 motors
+Parallel mode=  1 motors (more power consumption)
+
+In walle/pwm/main/pwm_task.c (
+There are 3 functions- enable_motor_driver:-  Defined in src/motor_driver.c
+
+Set_motor_speed:-  Defined in src/motor_driver.c
+
+xTaskCreate:- Task is created with freertos
+
+Task is to turn vary speed and direction of wheels by pwn (duty_cycle configuration)  and motor drivers
+)
+
+Mcpwn_config_t is structure used to configure  frequency,countermode,dutymode.
+
+In walle/components/src/motor_driver.c (
+Frequency is 20khz
+So time for 1 pulse = 1/20 khz = 50 microseconds
+Therefore 100%duty cycle = signal is high for 50 microseconds
+
+)
+
+2 motors in sra board for 2 wheels
+Motor driver has H bridge structure- helps change the direction of voltage across load w/o changing of the original current direction
+Motor Driver helps control Speed And direction of wheels helps in line following also in Self-balancing
+

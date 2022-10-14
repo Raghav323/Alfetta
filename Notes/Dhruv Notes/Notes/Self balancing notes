@@ -1,0 +1,45 @@
+bound() : bound values.Defined in utils.c 
+
+fabsf() : function used to get absolute value of floating point
+
+pitch_error : Angle of bot away from reference position .
+
+pitch_error_difference : change in pitch error
+
+pitch_correction: Correction duty cycle given to motor drivers 
+
+absolute_pitch_correction :  absolute value of pitch correction 
+
+pitch_rate : pitch_error_diff (pitch error difference per unit time)
+
+P_term=kp*pitch error 
+I_term=ki*pitch_area
+D_term=kd*pitch_rate
+
+Euler angles: Pitch and roll angles obtained from mpu using accelerometer and gyroscope readings
+
+
+Functions:
+
+pitch_cmd = reference angle of bot calculated using read_pid_const().setpoint
+
+read_mpu6050(euler_angle,mpu_offset) : calculates current pitch angle using mpu
+
+enable_mpu6050() : enables mpu and returns ESP_OK if mpu is initialized successfully.
+
+enable_motor_driver(A,Normal_mode) Enables motor driver in normal mode
+
+Conditions:
+1)If pitch error>1 Bot is above the reference postion so bot is moved backwards by using
+Setting speed of both motors by set_motor_speed(motor,motor_backward,duty cycle)
+
+2)If pitch error<-1 Bot is below the reference postion so bot is moved forward by using
+Setting speed of both motors by set_motor_speed(motor,motor_forward,duty cycle)
+
+
+3)if pitch_error is between 1 and -1  bot is in the right position so bot is stopped by
+set_motor_speed(motor,motor_stop,duty cycle)
+
+
+Using mpu readings (read_mpu) to get offset angles and euler angles, pitch error is calculated as pitch_cmd-pitch_angle acalculate_motor_command is used to get corrected duty cycle values and stored in motor_cmd…motor_pwm bounds these values between max and min duty cycle.motor_cmd is desired pwm to be passed to bot.
+
