@@ -20,10 +20,12 @@
 float forward_offset = 2.51f;
 float forward_buffer = 3.1f;
 */
+//                                        25                   8
+//                                            14.16                      34          -2                      1 -1      60 60
 
-int optimum_duty_cycle = 63;
+int optimum_duty_cycle = 58;
 int lower_duty_cycle = 50;  // 50
-int higher_duty_cycle = 76; // 76
+int higher_duty_cycle = 76 ; // 76
 float left_duty_cycle = 0, right_duty_cycle = 0;
 const int weights[4] = {3, 1, -1, -3};
 float forward_pwm = 0;
@@ -34,9 +36,20 @@ float y = 0;
 
 float error = 0, prev_error = 0, difference, cumulative_error, correction;
 line_sensor_array line_sensor_readings;
-/* 8    0  3.3  14.16  0   34   -2            1 -1  63   63
+/* 2    0  8  1.5 0   3   10            0.1  -0.1  67   67
    kp ki kd kp2 ki2 kd2   setpoint       x     y    llp  hlp                                    best result
+minmax pwm 60 65
+lowerhigherduty 60 80
+purebalancingpart motor pwm
+mixpart fwdpwm+correction
+*/
 
+/* 2 0 8 1.5 0 3 10 0.1 -0.1 67 67
+minmax pwm 60 65
+lowerhigherduty 60 80
+purebalancingpart motor pwm
+mixpart motorpwm+correction
+not that great cuz when good balance then it enters mixedpart where motorpwm is very less
 */
 
 void lsa_to_bar()
@@ -202,6 +215,15 @@ void self_and_line(void *arg)
             hlp = read_pid_const2().hlp;
             x = read_pid_const2().x;
             y = read_pid_const2().y;
+
+            if (error>10){
+                right_duty_cycle-=15;
+                left_duty_cycle+=15;
+            }
+            else if (error<-10){
+                left_duty_cycle-=15;
+                right_duty_cycle+=15;
+            }
 
             forward_pwm = (hlp - llp) * pitch_angle / (x - y) + hlp - (hlp - llp) * (read_pid_const2().setpoint - y) / (x - y);
 
