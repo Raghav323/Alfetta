@@ -1,1 +1,0 @@
-cmd='/usr/bin/cmake;-DSDKCONFIG=/home/raghav/Alfetta_in_WALLE/self_and_line/sdkconfig;-DIDF_PATH=/home/raghav/esp/esp-idf;-DIDF_TARGET=esp32;-DPYTHON_DEPS_CHECKED=1;-DPYTHON=/home/raghav/.espressif/python_env/idf4.2_py3.8_env/bin/python;-DEXTRA_COMPONENT_DIRS=/home/raghav/esp/esp-idf/components/bootloader;-DLEGACY_INCLUDE_COMMON_HEADERS=;-GNinja;<SOURCE_DIR><SOURCE_SUBDIR>'
