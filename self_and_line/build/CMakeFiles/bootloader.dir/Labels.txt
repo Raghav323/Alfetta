@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/CMakeFiles/bootloader
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/CMakeFiles/bootloader.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/CMakeFiles/bootloader-complete.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/raghav/Alfetta_in_WALLE/self_and_line/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
